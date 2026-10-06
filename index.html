@@ -1,0 +1,2108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOPE Perspective Lab</title>
+<!-- SCOPE Perspective Lab v1 (Unit 1). Single file. Offline. No accounts. Data stays in this browser. -->
+<style>:root{
+  color-scheme: light;
+  --ink:#1F1B3A; --bg:#EDF0FF; --panel:#FFFFFF; --muted:#5B5A7A; --line:#CFD3EE; --soft:#F6F7FF;
+  --S:#0EA5B7; --C:#F97316; --O:#8B5CF6; --P:#EC4899; --E:#16A34A; --sun:#FFD23F; --bad:#DC2626; --ok:#16A34A;
+  --kid: Verdana, Tahoma, "Segoe UI", system-ui, sans-serif;
+  --head: "Arial Rounded MT Bold", ui-rounded, "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --ui: system-ui, "Segoe UI", Roboto, sans-serif;
+  --hard: 4px 4px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.45}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+input,select,textarea{font:inherit;color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;width:100%}
+textarea{min-height:80px;resize:vertical}
+label{font-weight:600;font-size:14px;display:block;margin:10px 0 4px}
+h1,h2,h3{font-family:var(--head);margin:0;line-height:1.15}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+
+/* ---------- buttons ---------- */
+.btn{border:2px solid var(--ink);background:#fff;border-radius:12px;padding:8px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px;box-shadow:2px 2px 0 var(--ink);transition:transform .06s, box-shadow .06s}
+.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.go{background:var(--sun)}
+.btn.ghost{border-color:transparent;box-shadow:none;background:transparent}
+.btn.ghost:hover{background:#0000000d}
+.btn.danger{color:var(--bad);border-color:var(--bad);box-shadow:2px 2px 0 var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{font-size:20px;padding:12px 22px;border-radius:16px;box-shadow:var(--hard)}
+
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--ink);color:#fff}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .lens{display:flex;gap:3px}
+.logo .lens span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:900 15px var(--head);color:#fff;border:2px solid #fff}
+.logo h1{font-size:20px;color:#fff}
+.top .btn{background:transparent;color:#fff;border-color:#ffffff55;box-shadow:none}
+.top .btn:hover{background:#ffffff1a}
+.wrap{max-width:1180px;margin:0 auto;padding:24px}
+
+/* ---------- roster ---------- */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;margin-top:16px}
+.scard{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:16px;box-shadow:var(--hard);display:flex;flex-direction:column;gap:8px}
+.scard h3{font-size:22px}
+.scard .meta{font-size:13px;color:var(--muted)}
+.scard .next{background:var(--soft);border-radius:12px;padding:10px;border:2px dashed var(--line)}
+.scard .next b{font-family:var(--head);font-size:17px}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--ink);background:#fff}
+.empty{background:#fff;border:3px dashed var(--line);border-radius:18px;padding:40px;text-align:center}
+.empty h2{margin-bottom:8px}
+
+/* ---------- library ---------- */
+.unit{margin-top:22px}
+.unit h2{font-size:22px;display:flex;align-items:center;gap:10px}
+.unit h2 .num{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;border:2px solid var(--ink);font-size:18px}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:10px}
+.lcard{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.lcard.soon{opacity:.6;border-style:dashed}
+.lcard .n{font:900 13px var(--head);color:var(--muted)}
+.lcard h4{margin:0;font:800 16px var(--head)}
+.lcard .codes{font-size:12px;color:var(--muted)}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
+th{background:var(--soft);font-size:12px;color:var(--muted)}
+.panel{background:#fff;border:2px solid var(--ink);border-radius:16px;padding:16px}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:#1F1B3A88;display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:#fff;border:3px solid var(--ink);border-radius:18px;box-shadow:var(--hard);max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:20px}
+.modal h2{margin-bottom:6px}
+.modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;z-index:60;font-weight:700}
+
+/* ============ SESSION ============ */
+.sess{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+.sbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--ink)}
+.sbar .title{font:800 17px var(--head)}
+.sbar .who{font-size:13px;color:var(--muted)}
+.phases{display:flex;gap:4px;margin:0 auto}
+.phases span{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;border:2px solid var(--line);color:var(--muted);background:#fff;white-space:nowrap}
+.phases span.on{border-color:var(--ink);background:var(--sun);color:var(--ink)}
+.phases span.done{background:var(--soft);color:var(--ink)}
+.timer{font:700 15px var(--ui);font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:8px;background:var(--soft)}
+.sbody{display:grid;grid-template-columns:88px 1fr;min-height:0}
+.rail{background:#fff;border-right:3px solid var(--ink);display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0}
+.rail .lens{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;border:3px solid var(--ink);font:900 26px var(--head);color:#fff;opacity:.35;transition:transform .15s, opacity .15s;position:relative}
+.rail .lens.on{opacity:1;transform:scale(1.18);box-shadow:3px 3px 0 var(--ink)}
+.rail .lens.done{opacity:.85}
+.stage{overflow:auto;padding:18px 22px;min-height:0}
+.slpbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#2A2550;color:#E9E8FF;border-top:3px solid var(--ink);flex-wrap:wrap}
+.slpbar .tag{font:800 11px var(--ui);background:#ffffff22;padding:3px 8px;border-radius:6px;letter-spacing:.02em}
+.slpbar .btn{box-shadow:none;border-color:#ffffff55;background:transparent;color:#fff}
+.slpbar .btn.go{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+.slpbar .tip{font-size:13px;max-width:640px}
+.marks{display:flex;gap:6px;align-items:center}
+.marks button{border:2px solid #ffffff55;background:transparent;color:#fff;border-radius:10px;padding:6px 10px;font-weight:800;font-size:14px}
+.marks button.sug{border-style:dashed;border-color:#fff}
+.marks button.on[data-m=I]{background:var(--ok);border-color:var(--ok)}
+.marks button.on[data-m=P]{background:#F59E0B;border-color:#F59E0B;color:var(--ink)}
+.marks button.on[data-m=X]{background:var(--bad);border-color:var(--bad)}
+
+/* kid-facing text */
+.kid{font-family:var(--kid)}
+.say{font-family:var(--kid);font-size:24px;font-weight:700;line-height:1.35}
+.say.sm{font-size:20px}
+.spk{border:2px solid var(--ink);background:#fff;border-radius:50%;width:38px;height:38px;display:inline-grid;place-items:center;font-size:18px;vertical-align:middle;margin-left:6px;flex:none;box-shadow:2px 2px 0 var(--ink)}
+.spk:active{transform:translate(2px,2px);box-shadow:none}
+.goalbox{display:flex;gap:12px;align-items:center;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;box-shadow:var(--hard)}
+
+/* scene */
+.explore{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:18px;align-items:start}
+.scene{position:relative;border:4px solid var(--ink);border-radius:18px;overflow:hidden;background:#fff;box-shadow:var(--hard);aspect-ratio:16/9}
+.scene svg.scenesvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.facewrap{width:min(280px,60vw);aspect-ratio:132/124;border:4px solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:var(--hard);margin:0 auto}
+.facewrap svg{width:100%;height:100%;display:block}
+.bub{position:absolute;transform:translate(-50%,-100%);background:#fff;border:3px solid var(--ink);border-radius:18px;padding:6px 12px;font:700 clamp(13px,1.6vw,20px) var(--kid);max-width:46%;text-align:center;cursor:pointer;z-index:3;line-height:1.25}
+.bub::after{content:"";position:absolute;left:var(--tail,50%);bottom:-13px;margin-left:-8px;border:8px solid transparent;border-top:12px solid var(--ink)}
+.bub::before{content:"";position:absolute;left:var(--tail,50%);bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top:9px solid #fff;z-index:1}
+.bub.side::after,.bub.side::before{display:none}
+.bub.think{border-radius:30px;background:#F5F3FF;border-style:dashed}
+.bub.think::after,.bub.think::before{display:none}
+.bub.whisper{border-style:dotted;font-style:italic;font-weight:600}
+.spot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:3px solid var(--ink);background:var(--sun);font:900 18px var(--head);display:grid;place-items:center;z-index:4;box-shadow:2px 2px 0 var(--ink);animation:pulse 1.8s ease-in-out infinite}
+.spot.found{animation:none;background:#fff}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.spot{animation:none}}
+.spotlabel{position:absolute;transform:translate(-50%,8px);background:var(--ink);color:#fff;font:700 clamp(12px,1.3vw,16px) var(--kid);padding:5px 10px;border-radius:10px;z-index:5;max-width:40%;text-align:center;pointer-events:none}
+.pickbox{position:absolute;border:3px dashed transparent;border-radius:16px;z-index:4;background:transparent}
+.pickbox:hover{border-color:#ffffffaa}
+.pickbox.sel{border-color:var(--sun);background:#FFD23F33}
+.pickbox.right{border-color:var(--ok);border-style:solid;background:#16A34A22}
+.pickbox.wrong{border-color:var(--bad);border-style:solid;background:#DC262622}
+.pickbox .nm{position:absolute;bottom:-2px;left:50%;transform:translate(-50%,100%);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:0 6px;font:800 13px var(--ui);white-space:nowrap}
+.mediatabs{display:flex;gap:6px;margin-bottom:8px}
+.mediatabs button{border:2px solid var(--ink);background:#fff;border-radius:10px;padding:4px 12px;font-weight:700}
+.mediatabs button.on{background:var(--ink);color:#fff}
+.mediabox{border:4px solid var(--ink);border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:#000;box-shadow:var(--hard)}
+.mediabox iframe,.mediabox img{width:100%;height:100%;border:0;display:block;object-fit:contain;background:#000}
+
+/* step cards */
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{border:3px solid var(--ink);border-radius:18px;background:#fff;padding:14px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--hard)}
+.step .hd{display:flex;align-items:center;gap:10px}
+.step .badge{width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;color:#fff;font:900 22px var(--head);flex:none}
+.step .word{font:900 20px var(--head)}
+.step .ans{border-radius:14px;padding:10px 12px;background:var(--soft);border:2px dashed var(--line)}
+.step .ans ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.step .ans li{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:6px 10px;font:700 18px var(--kid);display:flex;align-items:center;gap:6px}
+.step .ans li.best{background:#DCFCE7}
+.step .ans li .bt{margin-left:auto;font:800 11px var(--ui);background:var(--ok);color:#fff;padding:2px 6px;border-radius:6px}
+.stepnav{display:flex;gap:8px;flex-wrap:wrap}
+.ministeps{display:flex;gap:6px}
+.ministeps button{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--ink);font:900 15px var(--head);color:#fff;opacity:.4}
+.ministeps button.on{opacity:1;box-shadow:2px 2px 0 var(--ink)}
+.ministeps button.seen{opacity:.8}
+
+/* tone cards */
+.tones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tone{border:3px solid var(--ink);border-radius:16px;background:#fff;padding:10px;text-align:center;box-shadow:3px 3px 0 var(--ink)}
+.tone .em{font-size:38px;line-height:1}
+.tone .t{font:800 17px var(--head)}
+.tone .how{font-size:12px;color:var(--muted);margin-top:4px;border-top:1px dashed var(--line);padding-top:4px}
+.tone .means{font:700 16px var(--kid);background:#FEF9C3;border-radius:10px;padding:6px;margin-top:6px}
+.bigline{font:900 clamp(36px,6vw,64px) var(--kid);text-align:center;background:#fff;border:4px solid var(--ink);border-radius:24px;padding:18px;box-shadow:var(--hard);position:relative}
+
+/* items */
+.item{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.item.withpic{max-width:1100px}
+.itemgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,1fr);gap:20px;align-items:start}
+.qrow{display:flex;align-items:flex-start;gap:6px}
+.choices{display:grid;gap:12px}
+.choices.many{grid-template-columns:1fr 1fr}
+.choice{border:3px solid var(--ink);border-radius:18px;padding:14px 18px;text-align:left;font:700 21px var(--kid);background:#fff;box-shadow:var(--hard);transition:transform .06s, box-shadow .06s}
+.choice:nth-child(4n+1){background:#E0F7FA}.choice:nth-child(4n+2){background:#FFEDD5}.choice:nth-child(4n+3){background:#EDE9FE}.choice:nth-child(4n+4){background:#FCE7F3}
+.choice:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.choice.right{background:#BBF7D0!important;outline:4px solid var(--ok)}
+.choice.wrong{background:#FECACA!important;animation:shake .35s}
+.choice.dim{opacity:.45}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{border-radius:16px;padding:12px 16px;font:700 19px var(--kid);border:3px solid var(--ink)}
+.fb.ok{background:#DCFCE7}
+.fb.no{background:#FEF3C7}
+.prog{display:flex;gap:6px;justify-content:center}
+.prog i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:#fff}
+.prog i.on{background:var(--sun)}
+.prog i.done{background:var(--ink)}
+.peek{position:absolute;top:8px;right:8px;font:800 12px var(--ui);border:2px dashed var(--muted);color:var(--muted);background:#fff;border-radius:8px;padding:4px 8px;user-select:none}
+.peekout{position:absolute;inset:0;background:#2A2550;color:#fff;border-radius:20px;display:grid;place-items:center;text-align:center;font:800 22px var(--ui);padding:10px}
+.sortwrap{display:grid;gap:14px}
+.sortcards{display:flex;flex-wrap:wrap;gap:10px;min-height:60px}
+.scard2{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:10px 12px;font:700 17px var(--kid);box-shadow:3px 3px 0 var(--ink);max-width:320px;text-align:left}
+.scard2.sel{background:var(--sun)}
+.scard2.right{background:#BBF7D0}
+.scard2.wrong{background:#FECACA}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bin{border:3px dashed var(--ink);border-radius:18px;padding:12px;min-height:150px;background:#ffffffaa;display:flex;flex-direction:column;gap:8px}
+.bin h4{margin:0;font:900 20px var(--head)}
+.bin.ready{background:#FEF9C3;border-style:solid}
+.counter{font:800 16px var(--ui);background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px 12px;display:inline-block}
+
+/* talk */
+.talk{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.prompt{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:18px;box-shadow:var(--hard);display:flex;gap:10px;align-items:flex-start}
+.prompt .q{flex:1}
+.starters{display:flex;flex-wrap:wrap;gap:10px}
+.starter{border:3px solid var(--ink);border-radius:999px;padding:8px 16px;font:700 18px var(--kid);background:#FEF9C3;box-shadow:2px 2px 0 var(--ink)}
+
+/* done */
+.done{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:18px;align-items:center;text-align:center}
+.stamp{width:150px;height:150px;border-radius:50%;border:5px solid var(--ink);background:var(--sun);display:grid;place-items:center;font:900 26px var(--head);box-shadow:var(--hard);transform:rotate(-8deg)}
+.slpdone{width:100%;text-align:left;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:16px}
+.slpdone h3{font-size:18px;margin-bottom:8px}
+.minimarks button{border:2px solid var(--line);background:#fff;border-radius:8px;padding:2px 8px;font-weight:800;font-size:13px}
+.minimarks button.on[data-m=I]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.minimarks button.on[data-m=P]{background:#F59E0B;border-color:#F59E0B}
+.minimarks button.on[data-m=X]{background:var(--bad);color:#fff;border-color:var(--bad)}
+.stat{display:inline-flex;flex-direction:column;align-items:center;background:var(--soft);border-radius:12px;padding:8px 14px;border:2px solid var(--line)}
+.stat b{font:900 24px var(--head)}
+
+.graph svg{width:100%;height:auto;display:block}
+
+@media (max-width:980px){
+  .explore,.itemgrid{grid-template-columns:1fr}
+  .phases span{display:none}.phases span.on{display:inline}
+  .sbody{grid-template-columns:64px 1fr}
+  .rail .lens{width:44px;height:44px;font-size:20px}
+  .say{font-size:21px}.choice{font-size:19px}
+}
+@media print{.top,.btn{display:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============================================================
+   SETTINGS — the SLP or district can change these.
+   ============================================================ */
+const SETTINGS = {
+  appTitle: 'SCOPE Perspective Lab',
+  // How many practice sessions come after each core lesson, by service schedule.
+  practiceBySchedule: { 1: 1, 2: 2, 3: 3 },
+  readAloud: true,          // show the read-aloud buttons
+  voiceRate: 0.9,           // read-aloud speed (0.5 – 1.5)
+  shortVersionDefault: false,
+  checkItemsCore: 4,        // quick-check items in a core lesson (short version uses 3)
+  checkItemsPractice: 4,
+  masteryPercent: 80        // % independent on the quick check that suggests "ready to move on"
+};
+
+/* ============================================================
+   STANDARDS — ND ELA Content Standards (June 2023), grades 6–8.
+   Lessons list codes like 'R.2'; the app shows the code for the
+   student's grade (6.R.2, 7.R.2, 8.R.2).
+   SEL: paste NDMTSS SEL goal codes into SEL_GOALS and the "sel"
+   list on each lesson when ready. Nothing else needs to change.
+   ============================================================ */
+const STANDARDS = {
+  'R.2': {
+    6: 'Comprehend a variety of texts while developing inferences and providing supportive textual evidence.',
+    7: 'Comprehend a variety of texts while developing inferences and providing supportive textual evidence and reasoning.',
+    8: 'Comprehend a variety of texts while developing inferences and providing relevant textual evidence and reasoning.' },
+  'R.5': {
+    6: 'Determine the meaning of words and phrases as they are used in the text, including figurative, denotative, and connotative meanings.',
+    7: 'Determine the meaning and purpose of words and phrases as they contribute to the text, including figurative, denotative, and connotative meanings.',
+    8: 'Determine the meaning and purpose of words and phrases as they contribute to the text, including figurative, denotative, and connotative meanings.' },
+  'R.7': {
+    6: 'Describe how an author uses figurative language and specific word choice to affect meaning in a text.',
+    7: 'Analyze how an author uses figurative language and specific word choice to affect the meaning in a text.',
+    8: 'Analyze how an author uses figurative language and specific word choice to affect the meaning and tone.' },
+  'R.8b': {
+    6: 'Identify the point of view and describe how it affects the story.',
+    7: 'Analyze the point of view and describe how it affects the story.',
+    8: "Analyze how a story's point of view affects the text's overall meaning." },
+  'C.2': {
+    6: 'Present ideas using proper eye contact, body language, volume, and pronunciation in formal and informal presentations.',
+    7: 'Present ideas using proper eye contact, body language, volume, and pronunciation in formal and informal presentations.',
+    8: 'Present ideas using proper eye contact, body language, volume, and pronunciation in formal and informal presentations.' },
+  'C.5': {
+    6: 'Prepare for discussions by finding relevant connections to the topic or text.',
+    7: 'Prepare for discussions by finding relevant and specific connections to the topic or text.',
+    8: 'Prepare for discussions by finding relevant and specific connections to the topic or text.' },
+  'C.6': {
+    6: 'Engage in a range of discussions and/or debates using active listening skills to be focused and present.',
+    7: "Engage in a range of discussions and/or debates: use active listening skills to stay focused and present; reference others' ideas and/or connections to a text.",
+    8: "Engage in a range of discussions and/or debates: use active listening skills to stay focused and present; reference others' ideas and/or connections to a text; synthesize texts." },
+  'C.7': {
+    6: 'Collaborate cooperatively with peers to accomplish a common goal or purpose.',
+    7: 'Collaborate cooperatively with peers to accomplish a common goal or purpose.',
+    8: 'Collaborate cooperatively with peers to accomplish a common goal or purpose.' }
+};
+const SEL_GOALS = {
+  // 'XX.1': 'Paste NDMTSS SEL goal text here',
+};
+
+
+/* ============================================================
+   LESSONS
+   Item types (used in Try it, Check, Warm-up):
+     quiz:      {q, scene?|face?, line?, choices:[], ans:[i], why, hint?, slp?:{read, how}}
+     pick:      {type:'pick', q, scene, ok:[charIds], why}
+     detective: {type:'detective', q, scene(with spots), choices, ans, why}
+     sort:      {type:'sort', q, bins:[], items:[{t, bin}], why}
+     open:      {type:'open', q, scene?}   (talk only; no right answer)
+   Explore: {scene, steps:[{k:'S'|'C'|'O'|'P'|'E', q, a, best?, ext?}], tone?, compare?}
+   ============================================================ */
+const UNITS = [
+  {n:1, title:'Clues & Context', color:'#12B5CB'},
+  {n:2, title:'One Statement, Many Meanings', color:'#FF8A1F'},
+  {n:3, title:'Reading Between the Lines', color:'#8B5CF6'},
+  {n:4, title:'Relating Experiences', color:'#F2449B'},
+  {n:5, title:'Identifying & Solving Problems', color:'#16A34A'},
+  {n:6, title:'Speaking Up', color:'#E11D48'}
+];
+
+/* Full 40-lesson catalog. Lessons with content are filled in below. */
+const CATALOG = [
+  [1,1,'Meet SCOPE',['C.6','R.2']],
+  [2,1,'What do they see and know?',['R.2','R.8b']],
+  [3,1,'Face and body clues',['R.2','C.2']],
+  [4,1,'Tone-of-voice clues',['R.2','C.2']],
+  [5,1,'Where and when: context clues',['R.2','R.5']],
+  [6,1,'Putting clues together',['R.2','C.6']],
+  [7,1,"Clues that don't match",['R.2','C.6']],
+  [8,1,'Unit 1 check',['R.2','R.5','C.6']],
+  [9,2,'Words with more than one meaning',['R.5']],
+  [10,2,'Same words, different tone',['R.5','C.2']],
+  [11,2,'Which word gets the stress?',['R.5','C.2']],
+  [12,2,'Same words, different place',['R.5','R.2']],
+  [13,2,'Said vs. meant',['R.5','R.7']],
+  [14,2,'Sarcasm and joking',['R.7','R.5']],
+  [15,2,'Idioms and expressions',['R.5','R.7']],
+  [16,2,'Unit 2 check',['R.5','R.7']],
+  [17,3,"What's not said",['R.2']],
+  [18,3,'Hints and indirect asks',['R.2','R.5']],
+  [19,3,'What do they want?',['R.2','R.8b']],
+  [20,3,'Accident or on purpose?',['R.2','R.8b']],
+  [21,3,"Thinking they know (but they don't)",['R.2','R.8b']],
+  [22,3,'Texts and messages with no voice',['R.2','R.5']],
+  [23,3,'Picking the best guess',['R.2']],
+  [24,3,'Unit 3 check',['R.2','R.8b']],
+  [25,4,'That happened to me too',['C.5','C.6']],
+  [26,4,'Same event, different experience',['R.8b','C.6']],
+  [27,4,'Using my experience to understand someone else',['C.5','R.8b']],
+  [28,4,'Sharing my story at the right time',['C.6','C.2']],
+  [29,4,"Listening to someone else's story",['C.6']],
+  [30,4,'Unit 4 check',['C.5','C.6']],
+  [31,5,"What's the real problem?",['R.2','C.7']],
+  [32,5,'How big is the problem?',['C.7']],
+  [33,5,"Everyone's view of the problem",['R.8b','C.7']],
+  [34,5,'Solutions and what might happen',['C.7','C.6']],
+  [35,5,'Unit 5 check',['C.7','R.2']],
+  [36,6,'Asking what someone meant',['C.6']],
+  [37,6,'Explaining what I meant',['C.2','C.6']],
+  [38,6,'Fixing a mix-up',['C.6','C.7']],
+  [39,6,'Asking for what I need',['C.2','C.7']],
+  [40,6,'SCOPE in my real life',['C.6','C.7','C.2']]
+];
+
+const SCOPE_STEPS = {
+  S:{word:'See', ask:'What is happening? Where are they?', color:'#0EA5B7'},
+  C:{word:'Clues', ask:'What do the words, voice, face, and place tell me?', color:'#F97316'},
+  O:{word:'Others know', ask:'What do they know? What don’t they know?', color:'#8B5CF6'},
+  P:{word:'Possible meanings', ask:'What could it mean? Give more than one idea.', color:'#EC4899'},
+  E:{word:'Engage', ask:'What can I say or do? Ask, explain, fix, or speak up.', color:'#16A34A'}
+};
+const STEP_CHOICES = ['S – See','C – Clues','O – Others know','P – Possible meanings','E – Engage'];
+const TONE_CHOICES = ['😀 Happy','😒 Annoyed','😐 Bored','😟 Worried','🤩 Excited'];
+const FEEL = {annoyed:'\uD83D\uDE12 Annoyed', happy:'😀 Happy', sad:'😢 Sad', mad:'😠 Mad', worried:'😟 Worried', excited:'🤩 Excited', bored:'😐 Bored', tired:'🥱 Tired', embarrassed:'😳 Embarrassed', surprised:'😮 Surprised', proud:'😊 Proud', scared:'😨 Scared', confused:'😕 Confused', nervous:'😬 Nervous', left:'🫥 Left out', hurt:'🤕 Hurt'};
+
+const LESSONS = {};
+
+/* ---------------- Lesson 1: Meet SCOPE ---------------- */
+LESSONS[1] = {
+  goal:'I can use SCOPE to figure out what is going on.',
+  slp:{ tips:'Introduce each SCOPE letter on one scene. Keep it light: the goal today is the routine, not mastery. Point to the SCOPE rail on the left as you move through each step.',
+        search:['wordless animated short film school','short film no dialogue friendship'] },
+  core:{
+    warm:{type:'open', q:'First look. What do you think is going on here?',
+      scene:{bg:'hall', chars:[{who:'ben',x:300,pose:'hold',item:'paper',expr:'sad',look:'down'},{who:'ava',x:540,pose:'wave',expr:'happy',look:'left'}]}},
+    explore:{
+      scene:{bg:'hall', chars:[{who:'ben',x:300,pose:'hold',item:'paper',expr:'sad',look:'down'},{who:'ava',x:540,pose:'wave',expr:'happy',look:'left'}],
+        bubbles:[{who:'ava',text:'Hey Ben! Want to walk to lunch?'}],
+        spots:[{x:300,y:160,label:'Ben’s face looks sad.',k:'C'},{x:300,y:250,label:'His paper has a D on it.',k:'C'},{x:540,y:160,label:'Ava is smiling.',k:'C'},{x:690,y:300,label:'They are in the hall at school.',k:'S'}]},
+      steps:[
+        {k:'S', q:'What is happening? Where are they?', a:'They are in the hall. Ava says hi. Ben holds a paper.'},
+        {k:'C', q:'Look at faces, bodies, and things. What clues do you see?', a:'Ben looks down. His face is sad. His paper has a D.'},
+        {k:'O', q:'What does Ben know? What does Ava know?', a:'Ben knows he got a D. Ava does not know. She can’t see the paper.'},
+        {k:'P', q:'What could Ben be thinking? Give 2 ideas.', a:['I got a bad grade.','What will my mom say?','I don’t want to talk right now.']},
+        {k:'E', q:'What could Ava say?', a:'She could ask, “Are you okay?” Ask. Don’t guess.'}
+      ]},
+    talk:{prompts:['Which SCOPE step was easy? Which was hard?','Why is it good to have more than one idea?'],
+      starters:['I see…','One clue is…','She knows… He does not know…','Maybe he thinks…','I could say…']},
+    tryit:{title:'Match the step', items:[
+      {q:'“They are in the lunchroom.” Which step is this?', choices:STEP_CHOICES, ans:[0], why:'See tells where they are and what is happening.'},
+      {q:'“His arms are crossed.” Which step is this?', choices:STEP_CHOICES, ans:[1], why:'Crossed arms is a body clue.'},
+      {q:'“She was not there. She does not know.” Which step is this?', choices:STEP_CHOICES, ans:[2], why:'Others know: what someone knows or does not know.'},
+      {q:'“Maybe he is mad. Maybe he is cold.” Which step is this?', choices:STEP_CHOICES, ans:[3], why:'Possible meanings: more than one idea.'},
+      {q:'“I could ask, ‘Are you okay?’” Which step is this?', choices:STEP_CHOICES, ans:[4], why:'Engage: what you can say or do.'}
+    ]},
+    check:[
+      {q:'What is a CLUE in this picture?', scene:{bg:'cafe',chars:[{who:'kai',x:380,sit:true,pose:'table',expr:'sad',look:'down'}],props:[{t:'table',x:400,y:368,w:360,front:true},{t:'tray',x:380,y:352,front:true}]},
+        choices:['Kai is looking down.','It is Tuesday.','Kai likes pizza.'], ans:[0], why:'You can see it. Kai is looking down.'},
+      {q:'Why do we make more than one guess?', choices:['People can mean more than one thing.','So we can be the boss.','We don’t need guesses.'], ans:[0], why:'Words and faces can mean more than one thing.'},
+      {q:'Zoe smiles big. Which step is noticing her smile?', choices:['S – See','C – Clues','E – Engage'], ans:[1], why:'A smile is a face clue.'},
+      {q:'You are not sure what a friend meant. What is a good Engage step?', choices:['Ask what they meant.','Walk away fast.','Tell everyone.'], ans:[0], why:'Asking is a great way to check.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'cafe', chars:[{who:'kai',x:250,sit:true,pose:'phone',expr:'sad',look:'down'},{who:'omar',x:560,sit:true,pose:'table',expr:'laugh'},{who:'lily',x:680,sit:true,pose:'table',expr:'laugh',look:'left'}],
+          props:[{t:'table',x:250,y:368,w:240,front:true},{t:'table',x:620,y:368,w:280,front:true}],
+          spots:[{x:250,y:220,label:'Kai is alone. He looks at his phone.',k:'C'},{x:620,y:160,label:'Omar and Lily are laughing.',k:'C'},{x:400,y:90,label:'It is lunch time.',k:'S'}]},
+        steps:[
+          {k:'S', q:'What is happening? Where are they?', a:'It is lunch. Kai sits alone. Omar and Lily sit together.'},
+          {k:'C', q:'What clues do you see?', a:'Kai looks down. His face is sad. Omar and Lily laugh.'},
+          {k:'O', q:'Do Omar and Lily know Kai is sad?', a:'Maybe not. They are looking at each other, not at Kai.'},
+          {k:'P', q:'What could Kai be thinking? Give 2 ideas.', a:['I wish I had someone to sit with.','I got a sad text.','I just want to be alone today.']},
+          {k:'E', q:'What could someone do?', a:'Omar could say, “Kai, want to sit with us?”'}
+        ]},
+      { scene:{bg:'outside', chars:[{who:'omar',x:220,pose:'hold',item:'ball',expr:'sad',look:'right'},{who:'jay',x:520,look:'away'},{who:'kai',x:640,look:'away'}],
+          spots:[{x:220,y:160,label:'Omar looks sad.',k:'C'},{x:580,y:200,label:'Jay and Kai are walking away.',k:'C'},{x:220,y:250,label:'Omar has a ball.',k:'S'}]},
+        steps:[
+          {k:'S', q:'What is happening? Where are they?', a:'They are outside. Omar has a ball. Jay and Kai walk away.'},
+          {k:'C', q:'What clues do you see?', a:'Omar’s face is sad. Jay and Kai have their backs to him.'},
+          {k:'O', q:'Can Jay and Kai see Omar?', a:'No. Their backs are to him. They may not know he wants to play.'},
+          {k:'P', q:'What could this mean? Give 2 ideas.', a:['They left me out.','They didn’t see me.','They have to go home.']},
+          {k:'E', q:'What could Omar do?', a:'He could call out, “Hey! Want to play?”'}
+        ]}
+    ],
+    tryit:{title:'Match the step', items:[
+      {q:'“Her voice is shaky.” Which step?', choices:STEP_CHOICES, ans:[1], why:'A shaky voice is a voice clue.'},
+      {q:'“They are at the bus stop.” Which step?', choices:STEP_CHOICES, ans:[0], why:'See: where they are.'},
+      {q:'“He didn’t hear the news.” Which step?', choices:STEP_CHOICES, ans:[2], why:'Others know: what he knows or not.'},
+      {q:'“Maybe she is tired. Maybe she is sad.” Which step?', choices:STEP_CHOICES, ans:[3], why:'More than one idea = Possible meanings.'},
+      {q:'“I can say, ‘What do you mean?’” Which step?', choices:STEP_CHOICES, ans:[4], why:'Engage: asking to check.'},
+      {q:'“He is holding a trophy.” Which step?', choices:STEP_CHOICES, ans:[1], why:'Things people hold can be clues.'},
+      {q:'“She was at home sick. She missed it.” Which step?', choices:STEP_CHOICES, ans:[2], why:'She was not there, so she does not know.'},
+      {q:'“I could say, ‘Want to sit with us?’” Which step?', choices:STEP_CHOICES, ans:[4], why:'That is something you can do: Engage.'}
+    ]},
+    check:[
+      {q:'What does the S in SCOPE mean?', choices:['See','Sorry','Stop'], ans:[0], why:'S is See: what is happening and where.'},
+      {q:'What does the P in SCOPE ask?', choices:['What could it mean? Give more than one idea.','What is the right answer?','Who is the boss?'], ans:[0], why:'P = Possible meanings.'},
+      {q:'What is a clue in this picture?', scene:{bg:'class',chars:[{who:'zoe',x:400,pose:'hold',item:'paperA',expr:'excited'}]}, choices:['Zoe has an A+ and a big smile.','Zoe is in 7th grade.','Zoe likes cats.'], ans:[0], why:'You can see the A+ and her smile.'},
+      {q:'Ben’s face looks mad. What is a good Engage step?', choices:['Ask, “Are you okay?”','Laugh at him.','Take his stuff.'], ans:[0], why:'Asking is a kind way to check.'},
+      {q:'What does the O in SCOPE ask?', choices:['What do they know?','What time is it?','Who is older?'], ans:[0], why:'O = Others know.'},
+      {q:'Lily is crying. Which is a POSSIBLE meaning?', choices:['She is sad or hurt.','She is for sure happy.','Nothing happened.'], ans:[0], why:'Crying often means sad or hurt. It could mean other things too.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 2: What do they see and know? ---------------- */
+LESSONS[2] = {
+  goal:'I can tell what someone can see and what they know.',
+  slp:{ tips:'Key idea: people can only know what they saw or heard. "She ignored me" and "She didn’t see me" are two meanings of the same moment. Push for the meaning that fits the clues.',
+        search:['perspective taking what can they see video','visual perspective taking activity middle school'] },
+  core:{
+    warm:{q:'Which SCOPE step asks, “What could they be thinking?”', choices:STEP_CHOICES, ans:[3], why:'P = Possible meanings.'},
+    explore:{
+      scene:{bg:'hall', chars:[{who:'ben',x:230,pose:'wave',expr:'happy',look:'right'},{who:'ava',x:580,look:'away'}],
+        bubbles:[{who:'ben',text:'Hi Ava!'}],
+        spots:[{x:300,y:150,label:'Ben is waving.',k:'S'},{x:580,y:220,label:'Ava’s back is to Ben. She faces her locker.',k:'C'}]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Ben waves at Ava. Ava is at her locker.'},
+        {k:'C', q:'What clues do you see?', a:'Ava faces her locker. Her back is to Ben. She does not wave back.'},
+        {k:'O', q:'Can Ava see Ben? Does she know he waved?', a:'No. She can’t see him. She does not know he waved.'},
+        {k:'P', q:'Ava did not wave back. What could it mean?', a:['She is ignoring me.','She did not see me.'], best:1},
+        {k:'E', q:'What could Ben do?', a:'Walk over and say, “Hey Ava!” again.'}
+      ]},
+    talk:{prompts:['Has someone not waved back to you? What did you think?','How can you tell what someone can see?'],
+      starters:['She can see…','He can’t see… so he doesn’t know…','Maybe she didn’t…']},
+    tryit:{title:'Who can see it?', items:[
+      {type:'pick', q:'There is a dog at the window! Tap everyone who can SEE the dog.',
+        scene:{bg:'class', chars:[{who:'lily',x:290,look:'left',expr:'surprised'},{who:'omar',x:450,look:'away'},{who:'zoe',x:600,look:'left',expr:'happy'},{who:'cruz',x:730,look:'away',s:.95}],
+          props:[{t:'window',x:110,y:210},{t:'dog',x:110,y:250}]},
+        ok:['lily','zoe'], why:'Lily and Zoe face the window. Omar and Mr. Cruz face the board. They can’t see the dog, so they don’t know it’s there.'},
+      {q:'Rosa was in the bathroom. Mr. Cruz said, “No homework!” Does Rosa know?', choices:['Yes','No'], ans:[1], why:'Rosa was not there. She did not hear it.'},
+      {q:'Kai has headphones on. Ben says, “Let’s go!” Does Kai know?', choices:['Yes, for sure','Maybe not. He might not hear.'], ans:[1], why:'Headphones can block sound. He may not know.'}
+    ]},
+    check:[
+      {q:'Zoe has Jay’s book. Jay is facing his locker. Does Jay know Zoe has it?', scene:{bg:'hall',chars:[{who:'zoe',x:260,pose:'hold',item:'book',expr:'neutral',look:'right'},{who:'jay',x:520,look:'away'}]},
+        choices:['Yes','No'], ans:[1], why:'Jay can’t see Zoe. He does not know.'},
+      {q:'Lily missed the talk about the game. Now she asks, “What game?” Why?', choices:['She wasn’t there, so she didn’t hear.','She is being rude.','She is joking.'], ans:[0], why:'She was not there, so she does not know.'},
+      {q:'Omar says, “She ignored me!” What is ANOTHER possible meaning?', choices:['Maybe she didn’t see him.','She hates him.','She is mean.'], ans:[0], why:'There can be more than one meaning. Maybe she just didn’t see.'},
+      {q:'You are not sure someone saw you. What can you do?', choices:['Say hi again.','Get mad.','Never talk to them.'], ans:[0], why:'Try again. It’s an easy way to check.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'cafe', chars:[{who:'kai',x:260,expr:'embarrassed',look:'right'},{who:'omar',x:540,sit:true,pose:'phone',expr:'laugh',look:'down'}],
+          props:[{t:'spill',x:250,y:400},{t:'table',x:540,y:368,w:300,front:true}],
+          bubbles:[{who:'kai',text:'Is he laughing at me?',kind:'think'}],
+          spots:[{x:250,y:392,label:'Kai dropped his lunch.',k:'S'},{x:540,y:250,label:'Omar is looking at his phone.',k:'C'},{x:540,y:165,label:'Omar is laughing.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Kai dropped his lunch. Omar is laughing.'},
+          {k:'C', q:'What clues do you see?', a:'Omar looks down at his phone. He is not looking at Kai.'},
+          {k:'O', q:'Did Omar see the spill?', a:'Probably not. His eyes are on his phone.'},
+          {k:'P', q:'Why is Omar laughing? Give 2 ideas.', a:['He is laughing at Kai.','He is laughing at something on his phone.'], best:1},
+          {k:'E', q:'What could Kai do?', a:'Say, “Hey, can you help me?” Then he will know.'}
+        ]},
+      { scene:{bg:'bus', chars:[{who:'ben',x:250,pose:'point',expr:'worried',look:'right'},{who:'rosa',x:560,look:'away'}],
+          props:[{t:'phone',x:420,y:415}],
+          bubbles:[{who:'ben',text:'Rosa! Your phone fell!'}],
+          spots:[{x:420,y:405,label:'Rosa’s phone is on the floor.',k:'S'},{x:560,y:200,label:'Rosa is looking out the window.',k:'C'},{x:400,y:110,label:'The bus is loud.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'They are on the bus. Rosa’s phone fell. Ben tells her.'},
+          {k:'C', q:'What clues do you see?', a:'Rosa looks out the window. She does not turn around.'},
+          {k:'O', q:'Does Rosa know her phone fell?', a:'No. She did not see it. She may not hear Ben.'},
+          {k:'P', q:'Rosa did not turn around. What could it mean?', a:['She is ignoring Ben.','The bus is loud. She can’t hear.'], best:1},
+          {k:'E', q:'What could Ben do?', a:'Tap her shoulder and point to the phone.'}
+        ]}
+    ],
+    tryit:{title:'Who can see it?', items:[
+      {type:'pick', q:'Coach drops her whistle. Tap everyone who can SEE it fall.',
+        scene:{bg:'gym', chars:[{who:'kim',x:200,look:'away'},{who:'jay',x:380,look:'left',expr:'surprised'},{who:'lily',x:540,look:'away'},{who:'kai',x:690,look:'left',expr:'neutral'}], props:[{t:'whistle',x:250,y:418}]},
+        ok:['jay','kai'], why:'Jay and Kai face Coach. Coach and Lily have their backs turned.'},
+      {q:'Ben was home sick. The class picked a field trip. Does Ben know where they are going?', choices:['Yes','No'], ans:[1], why:'He was not there.'},
+      {q:'Ava whispered a secret to Zoe. Does Kai know the secret?', choices:['Yes','No, he didn’t hear it.'], ans:[1], why:'A whisper is only for one person.'},
+      {q:'Lily texts the group. Omar’s phone is dead. Does Omar know?', choices:['Yes','No'], ans:[1], why:'He could not read the text.'},
+      {type:'pick', q:'A ball rolls in the door. Tap everyone who can SEE it.',
+        scene:{bg:'class', chars:[{who:'omar',x:260,look:'right',expr:'surprised'},{who:'ava',x:430,look:'away'},{who:'ben',x:600,look:'right',expr:'neutral'}], props:[{t:'ball',x:760,y:420}]},
+        ok:['omar','ben'], why:'Omar and Ben face the ball. Ava faces the other way.'}
+    ]},
+    check:[
+      {q:'Mr. Cruz changed the test day while Jay was at the nurse. Does Jay know?', choices:['Yes','No'], ans:[1], why:'He was not there.'},
+      {q:'Kai didn’t laugh at Ben’s joke. What is a possible meaning?', choices:['He didn’t hear it.','He hates Ben.','Ben is not funny ever.'], ans:[0], why:'Maybe he did not hear it.'},
+      {q:'Can Ava see the cake?', scene:{bg:'kitchen',chars:[{who:'ava',x:300,look:'away'}],props:[{t:'cake',x:600,y:210}]}, choices:['Yes','No'], ans:[1], why:'Her back is to the cake.'},
+      {q:'Zoe says, “Why didn’t you text back?” Rosa never got the text. What does Rosa know?', choices:['She knows nothing about the text.','She read it and ignored it.'], ans:[0], why:'She did not get it, so she does not know.'},
+      {q:'Omar thinks Lily ignored him. What is a good Engage step?', choices:['Ask her, “Did you see me wave?”','Ignore her back.','Tell people she is mean.'], ans:[0], why:'Ask to check what she knew.'},
+      {q:'Who knows the most about what happened?', choices:['The person who saw it','The person who was not there'], ans:[0], why:'Seeing it helps you know.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 3: Face and body clues ---------------- */
+LESSONS[3] = {
+  goal:'I can use face and body clues to guess how someone feels.',
+  slp:{ tips:'Name the exact part: eyebrows, mouth, eyes, shoulders, hands. Model "I think he feels __ because his __." Accept more than one feeling if the clues support it.',
+        search:['body language clues video middle school','facial expressions emotions real faces video'] },
+  core:{
+    warm:{q:'Ava’s back is to you. Can she see you?', choices:['Yes','No'], ans:[1], why:'If her back is to you, she can’t see you.'},
+    explore:{
+      scene:{bg:'gym', chars:[{who:'kai',x:470,pose:'cheer',expr:'excited'},{who:'lily',x:620,pose:'down',expr:'happy',look:'left'},{who:'jay',x:210,sit:true,pose:'slump',expr:'sad',z:2}],
+        props:[{t:'ball',x:540,y:110},{t:'bench',x:210,y:396}],
+        spots:[{x:210,y:240,label:'Jay’s head is down. His eyes look down.',k:'C'},{x:210,y:290,label:'His shoulders are low.',k:'C'},{x:545,y:150,label:'The others are playing.',k:'S'}]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Kids are playing in gym. Jay sits on the bench.'},
+        {k:'C', q:'Look at Jay’s face and body. What clues do you see?', a:'His head is down. His shoulders are low. His mouth is a frown.'},
+        {k:'O', q:'Do the other kids know how Jay feels?', a:'Maybe not. They are busy playing.'},
+        {k:'P', q:'How could Jay feel? Give 2 ideas.', a:['Sad','Left out','Hurt or tired']},
+        {k:'E', q:'What could someone say?', a:'“Hey Jay, want to play?” or “You okay?”'}
+      ]},
+    talk:{prompts:['What does your face do when you feel left out?','Which clue helped more: face or body?'],
+      starters:['His face shows…','His body shows…','I think he feels… because…']},
+    tryit:{title:'Read the face', items:[
+      {q:'How does Lily feel?', face:{who:'lily',expr:'worried'}, choices:[FEEL.worried,FEEL.proud,FEEL.bored], ans:[0], why:'Her eyebrows go up in the middle. Her mouth is wavy.'},
+      {q:'How does Omar feel?', face:{who:'omar',expr:'mad'}, choices:[FEEL.happy,FEEL.mad,FEEL.tired], ans:[1], why:'His eyebrows point down. His mouth is tight.'},
+      {q:'How does Zoe feel?', face:{who:'zoe',expr:'embarrassed'}, choices:[FEEL.embarrassed,FEEL.scared,FEEL.mad], ans:[0], why:'Her cheeks are pink. Her smile is small.'},
+      {q:'How does Kai feel?', face:{who:'kai',expr:'bored'}, choices:[FEEL.excited,FEEL.bored,FEEL.surprised], ans:[1], why:'His eyes are half closed. His mouth is flat.'},
+      {q:'How does Ava feel?', face:{who:'ava',expr:'excited'}, choices:[FEEL.sad,FEEL.worried,FEEL.excited], ans:[2], why:'Big open smile. Eyebrows up.'}
+    ]},
+    check:[
+      {q:'How does Lily feel?', scene:{bg:'stage',chars:[{who:'lily',x:400,pose:'hold',item:'cards',expr:'worried',shake:true,sweat:true}]}, choices:[FEEL.nervous,FEEL.bored,FEEL.tired], ans:[0], why:'Shaky hands. Worried face. Sweat.'},
+      {q:'What BODY clue shows Omar is upset?', scene:{bg:'hall',chars:[{who:'omar',x:400,pose:'crossed',expr:'mad'}]}, choices:['His arms are crossed.','His shoes are white.','He is in the hall.'], ans:[0], why:'Crossed arms can mean upset.'},
+      {q:'What does this face show?', face:{who:'kai',expr:'tired'}, choices:[FEEL.tired,FEEL.mad,FEEL.excited], ans:[0], why:'Half-closed eyes. A yawn.'},
+      {q:'Zoe’s arms are up. Her mouth is wide open. She feels…', scene:{bg:'gym',chars:[{who:'zoe',x:400,pose:'cheer',expr:'excited'}]}, choices:[FEEL.excited,FEEL.scared,FEEL.bored], ans:[0], why:'Arms up and a big smile = excited.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'stage', chars:[{who:'lily',x:400,pose:'hold',item:'cards',expr:'worried',look:'down',shake:true,sweat:true}],
+          spots:[{x:400,y:160,label:'Her eyebrows are up. Her mouth is wavy.',k:'C'},{x:400,y:255,label:'Her hands shake.',k:'C'},{x:400,y:420,label:'She is on a stage.',k:'S'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Lily is on stage. She has note cards. She is about to talk.'},
+          {k:'C', q:'What face and body clues do you see?', a:'Her hands shake. She looks down. She is sweating.'},
+          {k:'O', q:'Does the crowd know how she feels?', a:'Maybe. They can see her shaky hands.'},
+          {k:'P', q:'How could Lily feel?', a:['Nervous','Scared','Worried she will forget']},
+          {k:'E', q:'What could a friend do?', a:'Give a thumbs up. Say, “You got this!”'}
+        ]},
+      { scene:{bg:'hall', chars:[{who:'omar',x:280,pose:'crossed',expr:'mad',look:'left'},{who:'ben',x:540,pose:'shrug',expr:'confused',look:'left'}],
+          spots:[{x:280,y:160,label:'Omar’s eyebrows point down.',k:'C'},{x:280,y:240,label:'His arms are crossed.',k:'C'},{x:540,y:160,label:'Ben looks confused.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Omar and Ben are in the hall. Omar turns away.'},
+          {k:'C', q:'What clues do you see?', a:'Omar’s arms are crossed. His eyebrows point down. He looks away from Ben.'},
+          {k:'O', q:'Does Ben know why Omar is upset?', a:'No. Ben looks confused. He doesn’t know.'},
+          {k:'P', q:'How could Omar feel? Give 2 ideas.', a:['Mad at Ben','Upset about something else','Hurt feelings']},
+          {k:'E', q:'What could Ben say?', a:'“Did I do something? I want to know.”'}
+        ]}
+    ],
+    tryit:{title:'Read the face', items:[
+      {q:'How does Ben feel?', face:{who:'ben',expr:'surprised'}, choices:[FEEL.surprised,FEEL.bored,FEEL.sad], ans:[0], why:'Big eyes. Round mouth.'},
+      {q:'How does Rosa feel?', face:{who:'rosa',expr:'sad'}, choices:[FEEL.happy,FEEL.sad,FEEL.excited], ans:[1], why:'Her mouth turns down.'},
+      {q:'How does Jay feel?', face:{who:'jay',expr:'proud'}, choices:[FEEL.proud,FEEL.scared,FEEL.mad], ans:[0], why:'Calm smile. Eyes up.'},
+      {q:'How does Zoe feel?', face:{who:'zoe',expr:'confused'}, choices:[FEEL.confused,FEEL.excited,FEEL.tired], ans:[0], why:'One eyebrow up. Wavy mouth.'},
+      {q:'How does Omar feel?', face:{who:'omar',expr:'scared'}, choices:[FEEL.bored,FEEL.scared,FEEL.happy], ans:[1], why:'Wide eyes. Open mouth. Sweat.'},
+      {q:'How does Lily feel?', face:{who:'lily',expr:'laugh'}, choices:[FEEL.happy,FEEL.mad,FEEL.worried], ans:[0], why:'Closed happy eyes. Big laugh.'},
+      {q:'How does Kai feel?', face:{who:'kai',expr:'annoyed'}, choices:[FEEL.annoyed||'😒 Annoyed','😀 Happy','😨 Scared'], ans:[0], why:'Eyes roll up. Flat mouth.'},
+      {q:'How does Ava feel?', face:{who:'ava',expr:'cry'}, choices:[FEEL.excited,FEEL.sad,FEEL.bored], ans:[1], why:'Tears and a frown.'}
+    ]},
+    check:[
+      {q:'Ben has his hand on his chin. He is looking up. He is probably…', scene:{bg:'class',chars:[{who:'ben',x:400,pose:'chin',expr:'thinking',look:'up'}]}, choices:['Thinking','Angry','Sleepy'], ans:[0], why:'Hand on chin and eyes up = thinking.'},
+      {q:'Jay has fists. His eyebrows point down. He feels…', scene:{bg:'gym',chars:[{who:'jay',x:400,pose:'fists',expr:'mad'}]}, choices:[FEEL.mad,FEEL.proud,FEEL.bored], ans:[0], why:'Fists + angry eyebrows = mad.'},
+      {q:'Rosa covers her mouth. Her eyes are big. She feels…', scene:{bg:'hall',chars:[{who:'rosa',x:400,pose:'mouth',expr:'surprised'}]}, choices:[FEEL.surprised,FEEL.tired,FEEL.bored], ans:[0], why:'Big eyes + hands on mouth = surprised.'},
+      {q:'Which is a BODY clue?', choices:['Shoulders slumped','The room is cold','It is Friday'], ans:[0], why:'Shoulders are part of the body.'},
+      {q:'Zoe’s face is red. She looks down. She feels…', face:{who:'zoe',expr:'embarrassed',look:'down'}, choices:[FEEL.embarrassed,FEEL.excited,FEEL.mad], ans:[0], why:'Red cheeks and looking down.'},
+      {q:'Kai is yawning in class. A possible meaning is…', choices:['He is tired.','He is mad.','He is scared.'], ans:[0], why:'Yawning often means tired. Bored is possible too.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 4: Tone-of-voice clues ---------------- */
+LESSONS[4] = {
+  goal:'I can hear how a voice changes what words mean.',
+  slp:{ tips:'The read-aloud voice cannot do tone. YOU say each line. Hold the Peek button to see how to read it; the student should not see it. Exaggerate first, then make it more subtle.',
+        search:['tone of voice changes meaning video','same word different tone of voice activity'] },
+  core:{
+    warm:{q:'How does Omar feel?', face:{who:'omar',expr:'mad'}, choices:[FEEL.mad,FEEL.happy,FEEL.tired], ans:[0], why:'Eyebrows down. Tight mouth.'},
+    explore:{
+      scene:{bg:'hall', chars:[{who:'kai',x:280,pose:'point',expr:'happy',look:'right'},{who:'ben',x:540,expr:'neutral',look:'left'}],
+        bubbles:[{who:'kai',text:'Want to come to my game Friday?'},{who:'ben',text:'Sure.',dx:40}],
+        spots:[{x:540,y:150,label:'Ben says only one word: “Sure.”',k:'S'},{x:280,y:160,label:'Kai looks hopeful.',k:'C'}]},
+      tone:{line:'Sure.', ways:[
+        {tone:'Happy', icon:'😀', how:'High voice. Quick. Big smile.', means:'Yes! I want to go.'},
+        {tone:'Bored', icon:'😐', how:'Low, flat, slow. Shrug.', means:'I don’t really care.'},
+        {tone:'Annoyed', icon:'😒', how:'Short and sharp. Roll your eyes.', means:'Ugh. Fine. I don’t want to.'}
+      ]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Kai asks Ben to come to his game. Ben says, “Sure.”'},
+        {k:'C', q:'Listen to the voice. Tap each card below.', a:'The same word can sound happy, bored, or annoyed.'},
+        {k:'O', q:'How can Kai know what Ben means?', a:'Only from Ben’s voice and face.'},
+        {k:'P', q:'What could “Sure” mean? Give 2 ideas.', a:['Yes, I want to go!','I don’t care.','I don’t want to go.']},
+        {k:'E', q:'If Kai isn’t sure, what can he say?', a:'“You sure? It’s okay to say no.”'}
+      ]},
+    talk:{prompts:['Say “Okay” in a happy voice. Now say it in a mad voice.','Why can the same word mean different things?'],
+      starters:['Her voice sounded…','It was loud / soft / fast / slow…','I think it meant…']},
+    tryit:{title:'Which tone?', items:[
+      {q:'Listen. How does it sound?', line:'Fine.', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Short and sharp. Roll your eyes.'}, why:'A short, sharp “Fine” sounds annoyed.'},
+      {q:'Listen. How does it sound?', line:'Really?', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'High and loud. Big eyes.'}, why:'High and loud sounds excited.'},
+      {q:'Listen. How does it sound?', line:'Thanks.', choices:TONE_CHOICES, ans:[0], slp:{read:'Happy', how:'Warm voice. Smile.'}, why:'A warm voice sounds happy.'},
+      {q:'Listen. How does it sound?', line:'Oh no.', choices:TONE_CHOICES, ans:[3], slp:{read:'Worried', how:'Soft, shaky voice.'}, why:'Soft and shaky sounds worried.'},
+      {q:'Listen. How does it sound?', line:'Whatever.', choices:TONE_CHOICES, ans:[2], slp:{read:'Bored', how:'Flat, slow. Look away.'}, why:'Flat and slow sounds bored.'}
+    ]},
+    check:[
+      {q:'Listen. How does it sound?', line:'Okay.', choices:TONE_CHOICES, ans:[0], slp:{read:'Happy', how:'Bright, quick, smile.'}, why:'Bright and quick sounds happy.'},
+      {q:'Listen. How does it sound?', line:'Great.', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Low and sharp. Eye roll.'}, why:'Low and sharp sounds annoyed.'},
+      {q:'Listen. How does it sound?', line:'We won!', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'Loud, high, fast.'}, why:'Loud and fast sounds excited.'},
+      {q:'Same words + a different voice = …', choices:['A different meaning','The same meaning, always'], ans:[0], why:'The voice can change the meaning.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'cafe', chars:[{who:'rosa',x:290,pose:'hold',item:'paperA',expr:'happy',look:'right'},{who:'zoe',x:540,expr:'neutral',look:'left'}],
+          bubbles:[{who:'rosa',text:'Look at my drawing!'},{who:'zoe',text:'Cool.',dx:30}],
+          spots:[{x:290,y:250,label:'Rosa shows her drawing.',k:'S'},{x:540,y:160,label:'Zoe says one word.',k:'C'}]},
+        tone:{line:'Cool.', ways:[
+          {tone:'Excited', icon:'🤩', how:'High, loud, big eyes.', means:'I love it!'},
+          {tone:'Bored', icon:'😐', how:'Flat. Look away.', means:'I don’t care much.'},
+          {tone:'Surprised', icon:'😮', how:'Slow, “Coo-ool.” Eyebrows up.', means:'Wow, I didn’t know you could draw!'}
+        ]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Rosa shows Zoe her drawing. Zoe says, “Cool.”'},
+          {k:'C', q:'Listen to each voice below.', a:'“Cool” can sound excited, bored, or surprised.'},
+          {k:'O', q:'Does Rosa know what Zoe thinks?', a:'Only from Zoe’s voice and face.'},
+          {k:'P', q:'What could “Cool” mean?', a:['I love it!','I don’t care.','Wow, I’m surprised!']},
+          {k:'E', q:'What could Rosa ask?', a:'“Do you really like it?”'}
+        ]},
+      { scene:{bg:'class', chars:[{who:'cruz',x:300,pose:'point',expr:'happy',look:'right'},{who:'omar',x:560,sit:true,pose:'table',expr:'neutral',look:'left'}],
+          props:[{t:'desk',x:560,y:358,front:true}],
+          bubbles:[{who:'cruz',text:'Pop quiz today!'},{who:'omar',text:'Great.',dx:30}],
+          spots:[{x:300,y:160,label:'Mr. Cruz says there is a quiz.',k:'S'},{x:560,y:220,label:'Omar says, “Great.”',k:'C'}]},
+        tone:{line:'Great.', ways:[
+          {tone:'Excited', icon:'🤩', how:'Big smile, high voice.', means:'Yes! I studied!'},
+          {tone:'Annoyed', icon:'😒', how:'Low voice. Eye roll.', means:'Ugh. I don’t want a quiz.'},
+          {tone:'Worried', icon:'😟', how:'Soft and shaky.', means:'Oh no. I’m not ready.'}
+        ]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Mr. Cruz says there is a pop quiz. Omar says, “Great.”'},
+          {k:'C', q:'Listen to each voice below.', a:'“Great” can sound excited, annoyed, or worried.'},
+          {k:'O', q:'Does Mr. Cruz know how Omar feels?', a:'Only from his voice and face.'},
+          {k:'P', q:'What could “Great” mean?', a:['Yes, I studied!','Ugh, no.','Oh no, I’m not ready.']},
+          {k:'E', q:'What could Omar do if he is worried?', a:'Ask, “Can I look at my notes first?”'}
+        ]}
+    ],
+    tryit:{title:'Which tone?', items:[
+      {q:'Listen. How does it sound?', line:'Nice.', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'High and loud.'}, why:'High and loud = excited.'},
+      {q:'Listen. How does it sound?', line:'Yeah, okay.', choices:TONE_CHOICES, ans:[2], slp:{read:'Bored', how:'Flat. Slow. No smile.'}, why:'Flat and slow = bored.'},
+      {q:'Listen. How does it sound?', line:'Are you sure?', choices:TONE_CHOICES, ans:[3], slp:{read:'Worried', how:'Soft. Shaky. Eyebrows up.'}, why:'Soft and shaky = worried.'},
+      {q:'Listen. How does it sound?', line:'Thanks a lot.', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Sharp. Eye roll.'}, why:'Sharp with an eye roll = annoyed.'},
+      {q:'Listen. How does it sound?', line:'See you later!', choices:TONE_CHOICES, ans:[0], slp:{read:'Happy', how:'Warm. Smile. Wave.'}, why:'Warm = happy.'},
+      {q:'Listen. How does it sound?', line:'Who did this?', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Loud. Hands on hips.'}, why:'Loud and sharp = annoyed or mad.'},
+      {q:'Listen. How does it sound?', line:'It’s snowing!', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'High. Fast. Jump a little.'}, why:'Fast and high = excited.'},
+      {q:'Listen. How does it sound?', line:'I guess.', choices:TONE_CHOICES, ans:[2], slp:{read:'Bored', how:'Low. Shrug.'}, why:'Low with a shrug = bored.'}
+    ]},
+    check:[
+      {q:'Listen. How does it sound?', line:'Hello.', choices:TONE_CHOICES, ans:[0], slp:{read:'Happy', how:'Bright. Smile.'}, why:'Bright = happy.'},
+      {q:'Listen. How does it sound?', line:'Wow.', choices:TONE_CHOICES, ans:[2], slp:{read:'Bored', how:'Flat. Slow.'}, why:'Flat “wow” = bored.'},
+      {q:'Listen. How does it sound?', line:'Wow!', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'High. Loud.'}, why:'Loud “wow” = excited.'},
+      {q:'Listen. How does it sound?', line:'Did you call my mom?', choices:TONE_CHOICES, ans:[3], slp:{read:'Worried', how:'Soft. Shaky.'}, why:'Shaky = worried.'},
+      {q:'A loud, fast voice can mean… (pick one)', choices:['Excited','Mad','Both are possible'], ans:[2], why:'Loud and fast can be excited OR mad. Look at the face and place too.'},
+      {q:'Why listen to HOW someone says it?', choices:['The voice can change the meaning.','Only the words matter.'], ans:[0], why:'How we say it matters.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 5: Context clues ---------------- */
+LESSONS[5] = {
+  goal:'I can use the place and what is happening to figure out what words mean.',
+  slp:{ tips:'Same words, different place, different meaning. Ask "Where are they? What just happened?" before "What does it mean?" Slang is great here; let the student teach you some.',
+        search:['multiple meaning words in context video','slang words meaning depends on context'] },
+  core:{
+    warm:{q:'Listen. How does it sound?', line:'Yeah.', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'Loud. Fist pump.'}, why:'Loud with a fist pump = excited.'},
+    explore:{
+      scene:{bg:'skate', chars:[{who:'kai',x:300,pose:'cheer',expr:'excited'},{who:'omar',x:560,pose:'point',expr:'excited',look:'left',flip:true}],
+        props:[{t:'skateboard',x:300,y:428}],
+        bubbles:[{who:'omar',text:'That was SICK!'}],
+        spots:[{x:300,y:420,label:'Kai just did a skateboard trick.',k:'S'},{x:560,y:160,label:'Omar is smiling and pointing.',k:'C'},{x:240,y:150,label:'They are at the skate park.',k:'S'}]},
+      compare:{q:'Now Lily is at the nurse. She says, “I feel sick.” What does “sick” mean HERE?',
+        scene:{bg:'nurse',chars:[{who:'lily',x:440,pose:'hold',expr:'hurt',look:'down'}],props:[{t:'thermo',x:470,y:250}],bubbles:[{who:'lily',text:'I feel sick.'}]},
+        choices:['Not well. Ill.','Cool! Awesome!'], ans:[0], why:'At the nurse, sick means ill. At the skate park, sick meant cool.'},
+      steps:[
+        {k:'S', q:'Where are they? What just happened?', a:'They are at the skate park. Kai just did a trick.'},
+        {k:'C', q:'What clues do you see?', a:'Omar is smiling and pointing. Kai’s arms are up.'},
+        {k:'O', q:'What do Kai and Omar both know?', a:'They both know “sick” can mean cool.'},
+        {k:'P', q:'What could “sick” mean here?', a:['Cool! Awesome!','Not well. Ill.'], best:0},
+        {k:'E', q:'If you don’t know a word, what can you do?', a:'Ask, “What do you mean?”'}
+      ]},
+    talk:{prompts:['“That’s sick!” Where does it mean cool? Where does it mean ill?','What clues tell you about the place?'],
+      starters:['They are at…','Here it means…','At the ___ it would mean…']},
+    tryit:{title:'Same words, different place', items:[
+      {q:'Mom is in the kitchen. She yells, “This is fire!” What does she mean?', scene:{bg:'kitchen',chars:[{who:'mom',x:300,pose:'point',expr:'scared',look:'right'}],props:[{t:'pan',x:560,y:200,fire:true}]}, choices:['Danger! A real fire!','This food is great!'], ans:[0], why:'There are real flames. She means real fire.'},
+      {q:'Jay takes a bite. He says, “This pizza is fire!” What does he mean?', scene:{bg:'cafe',chars:[{who:'jay',x:400,pose:'hold',expr:'excited'}],props:[{t:'pizza',x:400,y:240}]}, choices:['Danger! A real fire!','This pizza is great!'], ans:[1], why:'He is smiling at lunch. It means great.'},
+      {q:'Coach yells, “Watch out!” What does she mean?', scene:{bg:'gym',chars:[{who:'kim',x:250,pose:'point',expr:'scared',look:'right'},{who:'ben',x:560,expr:'neutral',look:'left'}],props:[{t:'ball',x:440,y:140}]}, choices:['Be careful! A ball is coming!','Look at the cool show.'], ans:[0], why:'A ball is flying. She means be careful.'},
+      {q:'Rosa sits by the open window. She says, “It’s cold in here.” What does she want?', scene:{bg:'class',chars:[{who:'rosa',x:300,sit:true,pose:'hold',expr:'worried',shake:true,look:'right'},{who:'ben',x:560,expr:'neutral',look:'left'}],props:[{t:'window',x:120,y:200},{t:'desk',x:300,y:358,front:true}]}, choices:['Close the window, please.','Just telling the weather.'], ans:[0], why:'She is cold, and the window is open. She may want it closed.'}
+    ]},
+    check:[
+      {q:'At the doctor, “I feel sick” means…', choices:['I feel ill.','That was cool.'], ans:[0], why:'At the doctor, sick means ill.'},
+      {q:'Ben scores a goal. Jay yells, “You’re killing it!” What does it mean?', choices:['Ben is doing great.','Ben is hurting someone.'], ans:[0], why:'At a game, it means doing great.'},
+      {q:'Mr. Cruz says, “The test is a piece of cake.” What does it mean?', scene:{bg:'class',chars:[{who:'cruz',x:400,pose:'point',expr:'happy'}],bubbles:[{who:'cruz',text:'The test is a piece of cake!'}]}, choices:['The test will be easy.','There is cake on the test.'], ans:[0], why:'In class, about a test, it means easy.'},
+      {q:'What helps you know what words mean?', choices:['Where you are and what is happening','Only the first word','Nothing helps'], ans:[0], why:'The place and what is happening help.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'cafe', chars:[{who:'jay',x:300,pose:'hold',expr:'excited'},{who:'ava',x:540,expr:'happy',look:'left'}],
+          props:[{t:'pizza',x:300,y:240}],
+          bubbles:[{who:'jay',text:'This is fire!'}],
+          spots:[{x:300,y:220,label:'Jay is holding pizza.',k:'S'},{x:300,y:160,label:'Jay is smiling big.',k:'C'},{x:400,y:90,label:'They are at lunch.',k:'S'}]},
+        compare:{q:'Now Mom is at the stove. She says, “This is fire!” What does it mean HERE?',
+          scene:{bg:'kitchen',chars:[{who:'mom',x:300,pose:'point',expr:'scared',look:'right'}],props:[{t:'pan',x:560,y:200,fire:true}],bubbles:[{who:'mom',text:'This is fire!'}]},
+          choices:['Danger! Real fire!','The food is great!'], ans:[0], why:'There are real flames.'},
+        steps:[
+          {k:'S', q:'Where are they? What is happening?', a:'They are at lunch. Jay has pizza.'},
+          {k:'C', q:'What clues do you see?', a:'Jay is smiling. There is no real fire.'},
+          {k:'O', q:'What does Ava know about this word?', a:'She knows “fire” can mean great.'},
+          {k:'P', q:'What could “fire” mean here?', a:['This is great!','There is a real fire.'], best:0},
+          {k:'E', q:'If you don’t know the word, what can you do?', a:'Ask, “What does that mean?”'}
+        ]},
+      { scene:{bg:'gym', chars:[{who:'kim',x:300,pose:'point',expr:'happy',look:'right'},{who:'zoe',x:540,pose:'hold',item:'ball',expr:'happy',look:'left'}],
+          bubbles:[{who:'kim',text:'You’re on fire today!'}],
+          spots:[{x:300,y:160,label:'Coach is smiling.',k:'C'},{x:540,y:250,label:'Zoe has the ball.',k:'S'}]},
+        steps:[
+          {k:'S', q:'Where are they? What is happening?', a:'They are in gym. Zoe is playing.'},
+          {k:'C', q:'What clues do you see?', a:'Coach is smiling. There is no real fire.'},
+          {k:'O', q:'What does Zoe know?', a:'She knows she is playing well.'},
+          {k:'P', q:'What could “on fire” mean?', a:['You are playing great!','You are burning.'], best:0},
+          {k:'E', q:'What could Zoe say?', a:'“Thanks, Coach!”'}
+        ]}
+    ],
+    tryit:{title:'Same words, different place', items:[
+      {q:'Omar is at the beach. He says, “It’s cool!” The water is cold. What does he mean?', choices:['The water is cold.','He is mad.'], ans:[0], why:'At the beach, about water, cool = cold.'},
+      {q:'Omar sees a new game. He says, “It’s cool!” What does he mean?', choices:['The game is awesome.','The game is cold.'], ans:[0], why:'About a game, cool = awesome.'},
+      {q:'At the store, Mom says, “How much is this?” She means…', choices:['What does it cost?','How heavy is it?'], ans:[0], why:'At a store, it means cost.'},
+      {q:'Ben fell. Kai says, “You okay? That was a bad fall!” “Bad” means…', choices:['It looked like it hurt.','It was cool.'], ans:[0], why:'He fell. Bad means it may hurt.'},
+      {q:'Lily’s new shoes. Jay says, “Those are bad!” with a big smile. “Bad” means…', choices:['They look great.','They look ugly.'], ans:[0], why:'The smile shows bad means good here.'},
+      {q:'In music class, Mr. Cruz says, “Hit the note.” He means…', choices:['Sing the note right.','Punch something.'], ans:[0], why:'In music, hit the note = sing it right.'}
+    ]},
+    check:[
+      {q:'In gym, Coach says, “Run!” In class, Ben says, “My nose is running.” Do they mean the same thing?', choices:['No. Different meanings.','Yes. Same meaning.'], ans:[0], why:'Run can mean move fast or drip.'},
+      {q:'Jay says, “That test killed me.” He means…', choices:['The test was very hard.','He got hurt.'], ans:[0], why:'About a test, it means it was hard.'},
+      {q:'Zoe says, “I’m freezing!” at the bus stop in winter. She means…', choices:['She is very cold.','She is turning into ice.'], ans:[0], why:'It means very cold.'},
+      {q:'At the game, Ava says, “Let’s go!” She means…', choices:['Come on team!','Let’s leave now.'], ans:[0], why:'At a game, it is a cheer.'},
+      {q:'What should you check first to find the meaning?', choices:['The place and what is happening','The color of their shirt'], ans:[0], why:'Context helps most.'},
+      {q:'Kai says, “That’s sick!” at the skate park. He means…', choices:['Cool!','Ill.'], ans:[0], why:'At the skate park, sick means cool.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 6: Putting clues together ---------------- */
+LESSONS[6] = {
+  goal:'I can put clues together to make my best guess.',
+  slp:{ tips:'One clue can trick you. Have the student name at least two clues before guessing. In the main scene, the student can see the gift but Rosa cannot; use that to talk about Others know.',
+        search:['inference clues pictures video','making inferences with pictures middle school'] },
+  core:{
+    warm:{q:'Mr. Cruz says, “This test is a piece of cake.” He means…', choices:['The test will be easy.','There is cake.'], ans:[0], why:'About a test, it means easy.'},
+    explore:{
+      scene:{bg:'cafe', chars:[{who:'rosa',x:200,sit:true,pose:'table',expr:'worried',look:'right'},{who:'ava',x:500,sit:true,pose:'mouth',expr:'happy',look:'left'},{who:'kai',x:640,sit:true,pose:'table',expr:'laugh',look:'left'}],
+        props:[{t:'table',x:200,y:368,w:220,front:true},{t:'table',x:570,y:368,w:300,front:true},{t:'gift',x:720,y:412}],
+        bubbles:[{who:'ava',text:'psst…',kind:'whisper'}],
+        spots:[{x:500,y:200,label:'Ava is whispering.',k:'C'},{x:640,y:160,label:'Kai is laughing.',k:'C'},{x:200,y:225,label:'Rosa looks worried.',k:'C'},{x:720,y:400,label:'There is a gift under the table!',k:'O'}]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Rosa is at lunch. Ava and Kai whisper. They look at Rosa.'},
+        {k:'C', q:'What clues do you see? Find 3.', a:'They whisper. They look at Rosa. Kai laughs. Rosa looks worried.'},
+        {k:'O', q:'Can Rosa see the gift? Can you?', a:'Rosa can’t see it. You can! Rosa doesn’t know about the gift.'},
+        {k:'P', q:'What could be going on? Give 2 ideas.', a:['They are laughing at Rosa. (Rosa’s guess)','They are planning a surprise for Rosa!','They are telling a joke.'], best:1},
+        {k:'E', q:'What could Rosa do?', a:'Ask, “What’s up?” or wait and see.'}
+      ]},
+    talk:{prompts:['Why did Rosa feel worried? Was it a good guess with her clues?','Why use more than one clue?'],
+      starters:['Clue 1 is… Clue 2 is…','When I put them together, I think…','I could be wrong because…']},
+    tryit:{title:'Clue detective', items:[
+      {type:'detective', q:'Find all 3 clues. Then: how does Jay feel, and why?',
+        scene:{bg:'nurse',chars:[{who:'jay',x:420,sit:true,pose:'hold',expr:'hurt',look:'down'}],props:[{t:'cast',x:420,y:310},{t:'chair',x:420,y:420,c:'#94A3B8'}],
+          spots:[{x:420,y:220,label:'Jay’s face looks hurt.',k:'C'},{x:420,y:300,label:'He has a cast on his arm.',k:'C'},{x:605,y:105,label:'He is in the nurse’s office.',k:'S'}]},
+        choices:['Hurt. He hurt his arm.','Excited. He won a game.','Bored. Nothing to do.'], ans:[0], why:'Face + cast + nurse office = he got hurt.'},
+      {type:'detective', q:'Find all 3 clues. Then: how does Ava feel, and why?',
+        scene:{bg:'gym',chars:[{who:'ava',x:330,pose:'cheer',expr:'excited'},{who:'kim',x:560,pose:'down',expr:'happy',look:'left'}],props:[{t:'trophy',x:330,y:100}],
+          spots:[{x:330,y:80,label:'Ava has a trophy.',k:'C'},{x:330,y:160,label:'Ava has a big smile.',k:'C'},{x:560,y:160,label:'Coach is smiling at her.',k:'C'}]},
+        choices:['Proud and happy. She won!','Sad. She lost.','Mad at Coach.'], ans:[0], why:'Trophy + big smile + happy coach = she won.'}
+    ]},
+    check:[
+      {q:'Ben is yawning. His head is on the desk. It is first period. He is probably…', scene:{bg:'class',chars:[{who:'ben',x:400,sit:true,pose:'table',expr:'tired',look:'down'}],props:[{t:'desk',x:400,y:358,front:true}]}, choices:['Tired','Mad','Excited'], ans:[0], why:'Yawning + head down + early = tired.'},
+      {q:'Mom has her hands on her hips. There is juice on the floor. What is going on?', scene:{bg:'home',chars:[{who:'mom',x:300,pose:'hips',expr:'mad',look:'right'},{who:'omar',x:560,expr:'embarrassed',look:'left'}],props:[{t:'spill',x:440,y:420}]}, choices:['Mom is upset about the spill.','Mom is happy about a party.'], ans:[0], why:'Hands on hips + mad face + spill.'},
+      {q:'Lily’s voice shakes. Her hands shake. She is about to give a speech. She feels…', choices:[FEEL.nervous,FEEL.bored,FEEL.mad], ans:[0], why:'Shaky voice + shaky hands + speech = nervous.'},
+      {q:'Why use more than one clue?', choices:['One clue can trick you.','It takes longer.','Clues don’t matter.'], ans:[0], why:'More clues = a better guess.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'outside', chars:[{who:'kai',x:200,expr:'worried',look:'right'},{who:'jay',x:470,pose:'phone',expr:'laugh',look:'down'},{who:'omar',x:600,expr:'laugh',look:'left'}],
+          bubbles:[{who:'kai',text:'Are they laughing at me?',kind:'think'}],
+          spots:[{x:470,y:210,label:'Jay is holding a phone.',k:'C'},{x:600,y:160,label:'Omar is looking at the phone.',k:'C'},{x:200,y:160,label:'Kai looks worried.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Jay and Omar are laughing. Kai is close by.'},
+          {k:'C', q:'Find 2 clues.', a:'They are looking at a phone. They are not looking at Kai.'},
+          {k:'O', q:'Do Jay and Omar know Kai is worried?', a:'No. They are looking at the phone.'},
+          {k:'P', q:'Why are they laughing? Give 2 ideas.', a:['They are laughing at Kai.','They are laughing at a video.'], best:1},
+          {k:'E', q:'What could Kai do?', a:'Walk over and say, “What’s so funny?”'}
+        ]},
+      { scene:{bg:'class', chars:[{who:'zoe',x:300,pose:'hold',item:'paperA',expr:'proud'},{who:'ben',x:540,expr:'neutral',look:'left'}],
+          bubbles:[{who:'ben',text:'What did you get?'}],
+          spots:[{x:300,y:250,label:'Zoe has an A+.',k:'C'},{x:300,y:160,label:'Zoe is smiling.',k:'C'},{x:400,y:120,label:'Tests came back.',k:'S'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Tests came back. Ben asks Zoe her grade.'},
+          {k:'C', q:'Find 2 clues.', a:'Zoe has an A+. She is smiling.'},
+          {k:'O', q:'Does Ben know her grade?', a:'Not yet. He is asking.'},
+          {k:'P', q:'How could Zoe feel?', a:['Proud','Happy','A little shy to say']},
+          {k:'E', q:'What could Ben say?', a:'“Nice job!”'}
+        ]}
+    ],
+    tryit:{title:'Clue detective', items:[
+      {type:'detective', q:'Find all 3 clues. Then: what happened?',
+        scene:{bg:'cafe',chars:[{who:'kai',x:400,pose:'facepalm',expr:'embarrassed'}],props:[{t:'spill',x:400,y:420},{t:'tray',x:500,y:430}],
+          spots:[{x:400,y:410,label:'Food is on the floor.',k:'C'},{x:400,y:160,label:'Kai’s face is red.',k:'C'},{x:400,y:90,label:'It is lunch time.',k:'S'}]},
+        choices:['Kai dropped his lunch and feels embarrassed.','Kai won a prize.','Kai is mad at his friend.'], ans:[0], why:'Spill + red face + lunch.'},
+      {type:'detective', q:'Find all 3 clues. Then: how does Rosa feel?',
+        scene:{bg:'outside',chars:[{who:'rosa',x:330,pose:'hold',item:'gift',expr:'excited'},{who:'mom',x:560,expr:'happy',look:'left'}],props:[{t:'cake',x:450,y:430}],
+          spots:[{x:330,y:240,label:'Rosa has a gift.',k:'C'},{x:450,y:410,label:'There is a cake.',k:'C'},{x:330,y:160,label:'Rosa has a big smile.',k:'C'}]},
+        choices:['Excited. It’s her birthday!','Scared.','Bored.'], ans:[0], why:'Gift + cake + smile = birthday fun.'},
+      {type:'detective', q:'Find all 3 clues. Then: what is going on?',
+        scene:{bg:'bus',chars:[{who:'lily',x:400,sit:true,pose:'slump',expr:'sad'}],props:[{t:'paper',x:520,y:420}],
+          spots:[{x:400,y:220,label:'Lily looks sad.',k:'C'},{x:520,y:410,label:'There is a test with a D.',k:'C'},{x:400,y:130,label:'She is on the bus home.',k:'S'}]},
+        choices:['She got a bad grade and feels sad.','She is excited for the weekend.'], ans:[0], why:'Sad face + D test.'}
+    ]},
+    check:[
+      {q:'Omar smiles. He holds a new puppy. He feels…', choices:[FEEL.happy,FEEL.mad,FEEL.scared], ans:[0], why:'Smile + puppy.'},
+      {q:'Jay sits alone. He looks at the floor. His team lost. He feels…', choices:[FEEL.sad,FEEL.excited,FEEL.proud], ans:[0], why:'Alone + looking down + lost.'},
+      {q:'Ava hears thunder. She covers her ears and closes her eyes. She feels…', choices:[FEEL.scared,FEEL.bored,FEEL.proud], ans:[0], why:'Thunder + covering ears = scared.'},
+      {q:'Ben’s face is red. Everyone saw him trip. He feels…', choices:[FEEL.embarrassed,FEEL.excited,FEEL.bored], ans:[0], why:'Red face + people saw = embarrassed.'},
+      {q:'One clue says happy. Two clues say sad. What is your best guess?', choices:['Sad','Happy'], ans:[0], why:'Go with what most clues say, and stay open.'},
+      {q:'How many clues should you look for?', choices:['More than one','Just one','None'], ans:[0], why:'More clues = a better guess.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 7: Clues that don't match ---------------- */
+LESSONS[7] = {
+  goal:'I can notice when words and other clues don’t match.',
+  slp:{ tips:'When words and face don’t match, the face and body often tell more. But don’t force it: people also hide feelings on purpose. The kind move is a gentle check-in, not "You’re lying."',
+        search:['facial expression does not match words video','body language vs words mismatch'] },
+  core:{
+    warm:{q:'Find the clues: Jay has a cast. He is at the nurse. He feels…', choices:[FEEL.hurt,FEEL.excited,FEEL.bored], ans:[0], why:'Cast + nurse = hurt.'},
+    explore:{
+      scene:{bg:'hall', chars:[{who:'ava',x:260,expr:'worried',look:'right'},{who:'lily',x:540,pose:'hold',item:'tissue',expr:'cry',look:'left'}],
+        bubbles:[{who:'ava',text:'Are you okay?'},{who:'lily',text:'I’m fine!',dx:20}],
+        spots:[{x:540,y:150,label:'Lily says she is fine.',k:'S'},{x:540,y:165,label:'But she has tears.',k:'C'},{x:540,y:250,label:'She has a tissue.',k:'C'}]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Ava asks Lily if she is okay. Lily says, “I’m fine!”'},
+        {k:'C', q:'Do her words and her face match?', a:'No. Her words say fine. Her face is sad. She has tears and a tissue.'},
+        {k:'O', q:'What does Ava know?', a:'Only what she sees and hears. She doesn’t know what happened.'},
+        {k:'P', q:'What could Lily mean? Give 2 ideas.', a:['I’m not really fine.','I don’t want to talk right now.','I have a cold.']},
+        {k:'E', q:'What could Ava say?', a:'“Okay. I’m here if you want to talk.”'}
+      ]},
+    talk:{prompts:['When words and faces don’t match, which do you trust more? Why?','Why might someone say “I’m fine” when they are not?'],
+      starters:['Her words say… but her face shows…','They don’t match because…','I could say…']},
+    tryit:{title:'Match or don’t match?', items:[
+      {type:'sort', q:'Do the words and clues match? Tap a card, then tap a box.', bins:['✅ Match','❌ Don’t match'], items:[
+        {t:'“I’m so happy!” with a big smile', bin:0},
+        {t:'“I’m not mad!” with crossed arms and a frown', bin:1},
+        {t:'“This is so fun!” and a big yawn', bin:1},
+        {t:'“I’m scared.” and hides behind a friend', bin:0},
+        {t:'“Great job!” and claps', bin:0},
+        {t:'“I love it.” in a flat voice, looking away', bin:1}
+      ], why:'When words and body say different things, the clues don’t match.'}
+    ]},
+    check:[
+      {q:'Omar says, “I’m not mad.” Do his words and body match?', scene:{bg:'hall',chars:[{who:'omar',x:400,pose:'crossed',expr:'mad'}],bubbles:[{who:'omar',text:'I’m not mad.'}]}, choices:['No, they don’t match.','Yes, they match.'], ans:[0], why:'He says not mad, but his body looks mad.'},
+      {q:'Lily says “I’m fine” but she is crying. What could she mean?', choices:['She is sad but doesn’t want to talk.','Nothing is wrong at all.'], ans:[0], why:'Her tears are a strong clue.'},
+      {q:'Kai says, “That’s so fun,” with a bored face. He probably means…', scene:{face:{who:'kai',expr:'bored'}}, choices:['It is not fun.','He loves it.'], ans:[0], why:'A bored face does not match “fun.”'},
+      {q:'Words and clues don’t match. What can you do?', choices:['Gently check in, or give them space.','Tell them they are lying.','Laugh.'], ans:[0], why:'Be kind. Check in.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'cafe', chars:[{who:'omar',x:300,sit:true,pose:'table',expr:'neutral',look:'right'},{who:'jay',x:540,sit:true,pose:'table',expr:'happy',look:'left'}],
+          props:[{t:'table',x:420,y:368,w:420,front:true},{t:'pizza',x:520,y:356,front:true}],
+          bubbles:[{who:'jay',text:'Want some?'},{who:'omar',text:'Nah, I’m not hungry.',dx:-10}],
+          spots:[{x:300,y:220,label:'Omar is staring at the pizza.',k:'C'},{x:300,y:270,label:'Omar has no lunch.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Jay offers pizza. Omar says he is not hungry.'},
+          {k:'C', q:'Do his words and clues match?', a:'No. He says not hungry, but he stares at the pizza. He has no lunch.'},
+          {k:'O', q:'Does Jay know Omar has no lunch?', a:'Maybe not.'},
+          {k:'P', q:'What could Omar mean?', a:['He is hungry but shy to say yes.','He really is not hungry.','He doesn’t like that kind of pizza.']},
+          {k:'E', q:'What could Jay say?', a:'“You sure? I have extra.”'}
+        ]},
+      { scene:{bg:'class', chars:[{who:'cruz',x:280,pose:'point',expr:'happy',look:'right'},{who:'rosa',x:540,sit:true,pose:'table',expr:'confused',look:'left'}],
+          props:[{t:'desk',x:540,y:358,front:true}],
+          bubbles:[{who:'cruz',text:'Got it?'},{who:'rosa',text:'Yeah, I get it.',dx:20}],
+          spots:[{x:540,y:220,label:'Rosa’s face looks confused.',k:'C'},{x:400,y:110,label:'The board has a hard problem.',k:'S'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Mr. Cruz asks if Rosa gets it. She says yes.'},
+          {k:'C', q:'Do her words and face match?', a:'No. She says she gets it. Her face looks confused.'},
+          {k:'O', q:'Does Mr. Cruz know she is confused?', a:'Not if he only hears her words.'},
+          {k:'P', q:'What could Rosa mean?', a:['I don’t get it, but I don’t want to say.','I get some of it.','I get it.']},
+          {k:'E', q:'What could Rosa or Mr. Cruz say?', a:'Rosa: “Can you show me again?” Mr. Cruz: “Want me to show it another way?”'}
+        ]}
+    ],
+    tryit:{title:'Match or don’t match?', items:[
+      {type:'sort', q:'Do the words and clues match? Tap a card, then tap a box.', bins:['✅ Match','❌ Don’t match'], items:[
+        {t:'“I’m tired.” and yawns', bin:0},
+        {t:'“I’m ready!” but hands are shaking', bin:1},
+        {t:'“No big deal.” with tears', bin:1},
+        {t:'“Yes! We won!” and jumps up', bin:0},
+        {t:'“Sure, I’ll help.” with an eye roll', bin:1},
+        {t:'“That hurt.” and holds his arm', bin:0},
+        {t:'“I’m good.” with a big frown', bin:1},
+        {t:'“That’s funny!” and laughs', bin:0}
+      ], why:'Look at the words AND the body.'}
+    ]},
+    check:[
+      {q:'Zoe says, “I’m not nervous,” but her voice shakes. Do they match?', choices:['No','Yes'], ans:[0], why:'A shaky voice is a nervous clue.'},
+      {q:'Ben says, “I get it,” but looks confused. What could he need?', choices:['More help','Nothing'], ans:[0], why:'His face shows he may need help.'},
+      {q:'When clues don’t match, which often tells more?', choices:['Face and body','Only the words'], ans:[0], why:'Face and body often show the real feeling.'},
+      {q:'Ava says “Yay” in a flat voice. She probably feels…', choices:['Not very happy','Super excited'], ans:[0], why:'A flat “yay” does not sound happy.'},
+      {q:'Someone says “I’m fine” but looks upset. A kind thing to say is…', choices:['“Okay. I’m here if you want to talk.”','“You’re lying.”'], ans:[0], why:'Give them a kind choice.'},
+      {q:'Why might people hide a feeling?', choices:['They don’t want to talk about it yet.','Feelings are bad.'], ans:[0], why:'Sometimes people need time.'}
+    ]
+  }
+};
+
+/* ---------------- Lesson 8: Unit 1 check ---------------- */
+LESSONS[8] = {
+  goal:'I can use all of SCOPE on a new scene.',
+  slp:{ tips:'Unit check: fewer prompts. Let the student lead SCOPE out loud. The quick check has 8 items for a better data point.',
+        search:['short animated film emotions no dialogue','wordless short film school'] },
+  unitCheck:true,
+  core:{
+    warm:{type:'open', q:'What do you remember about SCOPE? Say each step.'},
+    explore:{
+      scene:{bg:'gym', chars:[{who:'kai',x:250,pose:'facepalm',expr:'embarrassed'},{who:'kim',x:470,pose:'down',expr:'happy',look:'left'},{who:'jay',x:660,pose:'mouth',expr:'laugh',look:'left'}],
+        props:[{t:'ball',x:765,y:170}],
+        bubbles:[{who:'kim',text:'Nice try, Kai!'}],
+        spots:[{x:765,y:160,label:'The ball missed the hoop.',k:'S',ox:0,oy:40},{x:250,y:160,label:'Kai covers his face.',k:'C'},{x:660,y:160,label:'Jay is laughing.',k:'C'},{x:470,y:160,label:'Coach is smiling.',k:'C'}]},
+      steps:[
+        {k:'S', q:'What is happening?', a:'Kai missed the shot. Coach says, “Nice try!” Jay laughs.'},
+        {k:'C', q:'Find clues: face, voice, body, place.', a:'Kai covers his face. Coach smiles. Jay covers his mouth and laughs.'},
+        {k:'O', q:'What does Kai know? What doesn’t he know?', a:'He knows he missed. He doesn’t know why Jay is laughing.'},
+        {k:'P', q:'What could “Nice try” mean? Why is Jay laughing? Give ideas.', a:['Coach: “Good effort, keep going.”','Jay is laughing at Kai.','Jay is laughing at something else.']},
+        {k:'E', q:'What could Kai do or say?', a:'“Thanks, Coach.” Then shoot again. If it bugs him, ask Jay, “What’s funny?”'}
+      ]},
+    talk:{prompts:['Which SCOPE step do you use most?','When you’re not sure what someone means, what can you do?'],
+      starters:['I use ___ the most because…','When I’m not sure, I can…']},
+    tryit:{title:'Unit 1 mix', items:[
+      {q:'“They are on the bus.” Which step?', choices:STEP_CHOICES, ans:[0], why:'See: where they are.'},
+      {q:'Ben’s back is to you. Can he see you wave?', choices:['Yes','No'], ans:[1], why:'He can’t see you.'},
+      {q:'How does Zoe feel?', face:{who:'zoe',expr:'worried'}, choices:[FEEL.worried,FEEL.excited,FEEL.bored], ans:[0], why:'Eyebrows up in the middle. Wavy mouth.'},
+      {q:'Listen. How does it sound?', line:'Seriously?', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Sharp. Eye roll.'}, why:'Sharp = annoyed.'},
+      {q:'At a game, “You’re on fire!” means…', choices:['You are playing great.','You are burning.'], ans:[0], why:'At a game, it means doing great.'}
+    ]},
+    check:[
+      {q:'What does SCOPE help you do?', choices:['Figure out what people mean and feel','Do math faster','Pick a lunch'], ans:[0], why:'SCOPE helps you understand people.'},
+      {q:'Rosa was absent. The class planned a party. Does Rosa know?', choices:['Yes','No'], ans:[1], why:'She was not there.'},
+      {q:'How does Ben feel?', face:{who:'ben',expr:'mad'}, choices:[FEEL.mad,FEEL.happy,FEEL.tired], ans:[0], why:'Angry eyebrows. Tight mouth.'},
+      {q:'Listen. How does it sound?', line:'Cool.', choices:TONE_CHOICES, ans:[2], slp:{read:'Bored', how:'Flat. Slow. Look away.'}, why:'Flat = bored.'},
+      {q:'At the nurse, “I feel sick” means…', choices:['I feel ill.','That’s cool.'], ans:[0], why:'The place tells you.'},
+      {q:'Lily has a trophy, a big smile, and her team is cheering. She feels…', choices:[FEEL.proud,FEEL.sad,FEEL.scared], ans:[0], why:'All the clues point to proud.'},
+      {q:'Jay says “I’m fine” with tears. Do the clues match?', choices:['No','Yes'], ans:[0], why:'Tears don’t match “fine.”'},
+      {q:'You are not sure what someone meant. What is a good Engage step?', choices:['Ask, “What do you mean?”','Guess and get mad.'], ans:[0], why:'Ask to check.'}
+    ]
+  },
+  practice:{
+    scenes:[
+      { scene:{bg:'outside', chars:[{who:'zoe',x:260,pose:'pointL',expr:'sad',look:'up'},{who:'ben',x:540,pose:'mouth',expr:'laugh',look:'left'}],
+          props:[{t:'paper',x:130,y:90,v:'paperA'}],
+          bubbles:[{who:'zoe',text:'My drawing!'}],
+          spots:[{x:130,y:90,label:'Zoe’s drawing blew away.',k:'S'},{x:260,y:160,label:'Zoe looks sad.',k:'C'},{x:540,y:160,label:'Ben is laughing.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'The wind took Zoe’s drawing. Ben laughs.'},
+          {k:'C', q:'Find clues.', a:'Zoe looks sad. Ben covers his mouth and laughs.'},
+          {k:'O', q:'Does Ben know the drawing matters to Zoe?', a:'Maybe not.'},
+          {k:'P', q:'Why could Ben be laughing? Give 2 ideas.', a:['He thinks it is funny that it blew away.','He is being mean.','He is nervous and doesn’t know what to do.']},
+          {k:'E', q:'What could Zoe say? What could Ben do?', a:'Zoe: “It’s not funny. That was for art class.” Ben: “Sorry! I’ll help you get it.”'}
+        ]},
+      { scene:{bg:'bus', chars:[{who:'ava',x:300,sit:true,pose:'phone',expr:'happy',look:'down'},{who:'rosa',x:520,sit:true,pose:'crossed',expr:'annoyed',look:'left'}],
+          bubbles:[{who:'rosa',text:'Nice talking to you.'}],
+          spots:[{x:300,y:250,label:'Ava is on her phone.',k:'C'},{x:520,y:220,label:'Rosa’s arms are crossed. Eye roll.',k:'C'}]},
+        steps:[
+          {k:'S', q:'What is happening?', a:'Ava is on her phone. Rosa says, “Nice talking to you.”'},
+          {k:'C', q:'Find clues.', a:'Rosa’s arms are crossed. She rolls her eyes. Her voice is sharp.'},
+          {k:'O', q:'Does Ava know Rosa is upset?', a:'No. She is looking at her phone.'},
+          {k:'P', q:'What does Rosa really mean?', a:['You are not talking to me.','I feel left out.'], best:0},
+          {k:'E', q:'What could Ava do?', a:'Put the phone down. “Sorry! What’s up?”'}
+        ]}
+    ],
+    tryit:{title:'Unit 1 mix', items:[
+      {q:'“He has fists.” Which step?', choices:STEP_CHOICES, ans:[1], why:'Fists are a body clue.'},
+      {q:'Omar was in the bathroom during the joke. Does he know why everyone laughed?', choices:['Yes','No'], ans:[1], why:'He was not there.'},
+      {q:'How does Jay feel?', face:{who:'jay',expr:'excited'}, choices:[FEEL.excited,FEEL.sad,FEEL.bored], ans:[0], why:'Big smile, eyebrows up.'},
+      {q:'Listen. How does it sound?', line:'Oh, great.', choices:TONE_CHOICES, ans:[1], slp:{read:'Annoyed', how:'Low and flat. Sigh.'}, why:'A sigh = annoyed.'},
+      {q:'At the pool, “Jump in!” means…', choices:['Get in the water.','Join the talk.'], ans:[0], why:'At a pool, it means get in the water.'},
+      {q:'Kai says “I’m good” with a frown. Do the clues match?', choices:['No','Yes'], ans:[0], why:'A frown doesn’t match “good.”'},
+      {q:'How does Rosa feel?', face:{who:'rosa',expr:'surprised'}, choices:[FEEL.surprised,FEEL.tired,FEEL.mad], ans:[0], why:'Big eyes and round mouth.'},
+      {q:'In class, “Take a seat” means…', choices:['Sit down.','Carry a chair away.'], ans:[0], why:'In class, it means sit down.'}
+    ]},
+    check:[
+      {q:'What does E in SCOPE stand for?', choices:['Engage','Easy','End'], ans:[0], why:'E = Engage.'},
+      {q:'Lily can’t see the board from her seat. Does she know what it says?', choices:['No','Yes'], ans:[0], why:'She can’t see it.'},
+      {q:'Hands shaking + big test = …', choices:[FEEL.nervous,FEEL.bored,FEEL.proud], ans:[0], why:'Shaky hands before a test = nervous.'},
+      {q:'Listen. How does it sound?', line:'I can’t wait!', choices:TONE_CHOICES, ans:[4], slp:{read:'Excited', how:'High. Fast. Bounce.'}, why:'High and fast = excited.'},
+      {q:'In the kitchen with smoke, “It’s burning!” means…', choices:['The food is burning.','It’s really cool.'], ans:[0], why:'Smoke tells you it’s real.'},
+      {q:'Ava says, “No, it’s fine,” but sighs and looks down. A good next step is…', choices:['“Are you sure? I can help.”','Say nothing ever.'], ans:[0], why:'Check in kindly.'},
+      {q:'Which is a POSSIBLE meaning of a friend not waving back?', choices:['They didn’t see you.','They hate you for sure.'], ans:[0], why:'Think of more than one meaning.'},
+      {q:'Why do we give more than one idea in P?', choices:['People can mean more than one thing.','To take up time.'], ans:[0], why:'There can be more than one meaning.'}
+    ]
+  }
+};
+
+
+/* ============================================================
+   ART: original comic-style scene renderer (SVG, offline)
+   Scene spec:
+   { bg:'hall'|'cafe'|'class'|'gym'|'bus'|'outside'|'nurse'|'skate'|'stage'|'home'|'kitchen'|'plain',
+     tint?: '#hex' (plain bg color),
+     chars:[{who:'ben', x:300, floor?:425, s?:1, expr:'sad', pose:'hold', look:'down'|'left'|'right'|'up'|'front'|'away',
+             item?:'paper', sit?:true, tear?:true, blush?:true, sweat?:true, shake?:true, id?}],
+     props:[{t:'locker'...,x,y,s,front?:true, ...}],
+     bubbles:[{who:'ben'|x,y, text, kind:'say'|'think'|'whisper', dx,dy, hide?:true}],
+     spots:[{x,y,label,k:'C'}],
+     caption?:'...' }
+   Face close-up: { face:{who, expr, look, tear, blush, sweat}, tint }
+   ============================================================ */
+const INK = '#1F1B3A';
+
+const CAST = {
+  ava:  {name:'Ava',  skin:'#8D5524', hair:'curlylong', hc:'#2B1A10', shirt:'#14B8A6', pants:'#3B3F6B', shoe:'#F8FAFC', top:'tee'},
+  ben:  {name:'Ben',  skin:'#F1C27D', hair:'short', hc:'#6B4423', shirt:'#FB923C', pants:'#4B5563', shoe:'#1F2937', glasses:true, top:'tee'},
+  kai:  {name:'Kai',  skin:'#E0AC69', hair:'spiky', hc:'#151515', shirt:'#7C3AED', pants:'#1E3A5F', shoe:'#E11D48', top:'hoodie'},
+  lily: {name:'Lily', skin:'#FFDBAC', hair:'ponytail', hc:'#B5532A', shirt:'#FACC15', pants:'#2563EB', shoe:'#F8FAFC', freckles:true, top:'tee'},
+  omar: {name:'Omar', skin:'#C68642', hair:'curlyshort', hc:'#1A1110', shirt:'#16A34A', pants:'#334155', shoe:'#F8FAFC', top:'tee'},
+  rosa: {name:'Rosa', skin:'#D9A47A', hair:'braid', hc:'#1C1410', shirt:'#EC4899', pants:'#312E81', shoe:'#FDE68A', top:'tee'},
+  jay:  {name:'Jay',  skin:'#5C3A21', hair:'fade', hc:'#0F0A07', shirt:'#DC2626', pants:'#111827', shoe:'#F8FAFC', top:'jersey', num:'23'},
+  zoe:  {name:'Zoe',  skin:'#F3D2B3', hair:'bob', hc:'#E8C468', shirt:'#3B82F6', pants:'#6B7280', shoe:'#F472B6', top:'tee'},
+  cruz: {name:'Mr. Cruz', skin:'#C58C5C', hair:'shortbeard', hc:'#2A1D14', shirt:'#BFDBFE', pants:'#374151', shoe:'#3F2A1D', adult:true, top:'tie'},
+  kim:  {name:'Coach Kim', skin:'#EBC59B', hair:'bun', hc:'#141414', shirt:'#0EA5E9', pants:'#0F172A', shoe:'#F8FAFC', adult:true, top:'track'},
+  mom:  {name:'Mom', skin:'#A86B43', hair:'long', hc:'#3A2416', shirt:'#A78BFA', pants:'#1F2937', shoe:'#111827', adult:true, top:'tee'}
+};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---------- faces ---------- */
+function eyesFor(expr, look){
+  // pupil offset
+  const L = {left:[-3,0], right:[3,0], up:[0,-3], down:[0,3], front:[0,0], away:[0,0]}[look||'front'] || [0,0];
+  let lidTop = 0, wide = 0, closed = false, eyeRoll = false;
+  if (expr==='bored' || expr==='tired') lidTop = 3.2;
+  if (expr==='surprised' || expr==='scared') wide = 1.5;
+  if (expr==='laugh') closed = true;
+  if (expr==='annoyed') eyeRoll = true;
+  let o='';
+  [-10,10].forEach(ex=>{
+    if (closed){
+      o+=`<path d="M${ex-5},-268 Q${ex},-274 ${ex+5},-268" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/>`;
+      return;
+    }
+    const ry = 6+wide, rx=5+wide*0.6;
+    o+=`<ellipse cx="${ex}" cy="-269" rx="${rx}" ry="${ry}" fill="#fff" stroke="${INK}" stroke-width="1.8"/>`;
+    const px = eyeRoll? ex+1 : ex+L[0], py = eyeRoll? -273.5 : -268+L[1]+(lidTop?1.5:0);
+    o+=`<circle cx="${px}" cy="${py}" r="${wide?2.6:3.1}" fill="${INK}"/>`;
+    if (lidTop) o+=`<path d="M${ex-rx-0.5},-269 A${rx} ${ry} 0 0 1 ${ex+rx+0.5},-269 Z" fill="var(--lid,#00000000)"/>`
+                 +`<line x1="${ex-rx}" y1="${-269+lidTop-3}" x2="${ex+rx}" y2="${-269+lidTop-3}" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`;
+  });
+  return o;
+}
+function browsFor(expr){
+  const b = {
+    happy:[[-15,-281,-5,-283],[5,-283,15,-281]],
+    excited:[[-15,-284,-5,-286],[5,-286,15,-284]],
+    laugh:[[-15,-282,-5,-284],[5,-284,15,-282]],
+    sad:[[-15,-280,-5,-284],[5,-284,15,-280]],
+    cry:[[-15,-280,-5,-285],[5,-285,15,-280]],
+    worried:[[-15,-281,-5,-285],[5,-285,15,-281]],
+    scared:[[-15,-284,-5,-288],[5,-288,15,-284]],
+    mad:[[-15,-285,-4,-279],[4,-279,15,-285]],
+    annoyed:[[-15,-282,-5,-282],[5,-280,15,-284]],
+    surprised:[[-15,-288,-5,-290],[5,-290,15,-288]],
+    bored:[[-15,-280,-5,-280],[5,-280,15,-280]],
+    tired:[[-15,-280,-5,-281],[5,-281,15,-280]],
+    neutral:[[-15,-281,-5,-282],[5,-282,15,-281]],
+    embarrassed:[[-15,-281,-5,-284],[5,-284,15,-281]],
+    smirk:[[-15,-281,-5,-282],[5,-285,15,-283]],
+    thinking:[[-15,-283,-5,-283],[5,-286,15,-284]],
+    proud:[[-15,-283,-5,-284],[5,-284,15,-283]],
+    hurt:[[-15,-279,-5,-285],[5,-285,15,-279]],
+    confused:[[-15,-286,-5,-284],[5,-280,15,-282]]
+  }[expr] || [[-15,-281,-5,-282],[5,-282,15,-281]];
+  return b.map(l=>`<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`).join('');
+}
+function mouthFor(expr){
+  const M = {
+    happy:'<path d="M-9,-255 Q0,-246 9,-255" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    proud:'<path d="M-8,-255 Q0,-249 8,-255" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    excited:'<path d="M-11,-257 Q0,-241 11,-257 Z" fill="#7F1D1D" stroke="INK" stroke-width="2.4" stroke-linejoin="round"/><path d="M-8,-256 L8,-256" stroke="#fff" stroke-width="2.4"/>',
+    laugh:'<path d="M-12,-258 Q0,-238 12,-258 Z" fill="#7F1D1D" stroke="INK" stroke-width="2.4" stroke-linejoin="round"/><path d="M-6,-247 Q0,-244 6,-247" fill="none" stroke="#F87171" stroke-width="3"/>',
+    sad:'<path d="M-8,-249 Q0,-256 8,-249" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    cry:'<path d="M-9,-248 Q0,-258 9,-248" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    hurt:'<path d="M-9,-249 Q-4,-254 0,-251 Q4,-254 9,-249" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    worried:'<path d="M-9,-251 Q-4.5,-255 0,-251 Q4.5,-247 9,-251" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    scared:'<ellipse cx="0" cy="-251" rx="6" ry="5" fill="#7F1D1D" stroke="INK" stroke-width="2.2"/>',
+    mad:'<path d="M-9,-250 Q0,-255 9,-250" fill="none" stroke="INK" stroke-width="3" stroke-linecap="round"/>',
+    annoyed:'<path d="M-8,-252 L8,-253" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    surprised:'<ellipse cx="0" cy="-251" rx="5" ry="6.5" fill="#7F1D1D" stroke="INK" stroke-width="2.2"/>',
+    bored:'<path d="M-7,-252 L7,-251" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    tired:'<ellipse cx="2" cy="-251" rx="4" ry="5" fill="#7F1D1D" stroke="INK" stroke-width="2"/>',
+    neutral:'<path d="M-7,-252 L7,-252" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    embarrassed:'<path d="M-6,-253 Q0,-249 6,-253" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    smirk:'<path d="M-6,-252 Q2,-251 9,-257" fill="none" stroke="INK" stroke-width="2.8" stroke-linecap="round"/>',
+    thinking:'<path d="M-4,-252 Q2,-254 7,-251" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>',
+    confused:'<path d="M-8,-251 Q-3,-254 1,-251 Q5,-249 8,-253" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>'
+  }[expr] || '<path d="M-7,-252 L7,-252" fill="none" stroke="INK" stroke-width="2.6" stroke-linecap="round"/>';
+  return M.replace(/INK/g, INK);
+}
+function faceExtras(c, o){
+  let s='';
+  if (o.blush || o.expr==='embarrassed') s+=`<ellipse cx="-16" cy="-258" rx="6" ry="3.5" fill="#F43F5E" opacity=".45"/><ellipse cx="16" cy="-258" rx="6" ry="3.5" fill="#F43F5E" opacity=".45"/>`;
+  if (c.freckles) s+=[-15,-12,-17,12,15,17].map((x,i)=>`<circle cx="${x}" cy="${-259+(i%3)*2}" r="1.1" fill="#9A4B24"/>`).join('');
+  if (o.tear || o.expr==='cry') s+=`<path d="M-12,-262 q-3,7 0,10 q3,-3 0,-10Z" fill="#60A5FA" stroke="${INK}" stroke-width="1"/><path d="M12,-262 q-3,7 0,10 q3,-3 0,-10Z" fill="#60A5FA" stroke="${INK}" stroke-width="1"/>`;
+  if (o.sweat || o.expr==='scared') s+=`<path d="M24,-288 q-4,8 0,11 q4,-3 0,-11Z" fill="#7DD3FC" stroke="${INK}" stroke-width="1.2"/>`;
+  if (o.expr==='mad') s+=`<path d="M20,-296 l6,-2 m-3,-4 l1,6 m4,-4 l-4,4" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round"/>`;
+  if (o.expr==='confused') s+=`<text x="26" y="-292" font-size="20" font-weight="900" fill="${INK}" font-family="system-ui">?</text>`;
+  if (o.expr==='excited') s+=`<path d="M-30,-300 l3,7 l7,3 l-7,3 l-3,7 l-3,-7 l-7,-3 l7,-3Z" fill="#FACC15" stroke="${INK}" stroke-width="1.2"/>`;
+  if (c.glasses) s+=`<g fill="none" stroke="${INK}" stroke-width="2"><rect x="-17" y="-276" width="14" height="13" rx="4"/><rect x="3" y="-276" width="14" height="13" rx="4"/><path d="M-3,-270 L3,-270"/></g>`;
+  return s;
+}
+
+/* ---------- hair ---------- */
+function hairBack(c){
+  const h=c.hc;
+  switch(c.hair){
+    case 'curlylong': return `<g fill="${h}" stroke="${INK}" stroke-width="2.5">${[[-30,-262,18],[30,-262,18],[-34,-240,16],[34,-240,16],[-26,-224,14],[26,-224,14],[0,-226,22]].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}"/>`).join('')}</g>`;
+    case 'long': return `<path d="M-31,-270 Q-36,-226 -30,-212 L30,-212 Q36,-226 31,-270Z" fill="${h}" stroke="${INK}" stroke-width="2.5"/>`;
+    case 'braid': return `<path d="M-30,-268 Q-34,-240 -30,-232 L30,-232 Q34,-240 30,-268Z" fill="${h}" stroke="${INK}" stroke-width="2.5"/>`
+      +`<g fill="${h}" stroke="${INK}" stroke-width="2">${[0,1,2,3].map(i=>`<ellipse cx="${22+i*2}" cy="${-232+i*15}" rx="8" ry="9"/>`).join('')}</g><circle cx="29" cy="-170" r="4" fill="#EC4899" stroke="${INK}" stroke-width="1.5"/>`;
+    case 'bob': return `<path d="M-32,-270 Q-36,-244 -28,-242 L28,-242 Q36,-244 32,-270Z" fill="${h}" stroke="${INK}" stroke-width="2.5"/>`;
+    case 'ponytail': return `<path d="M24,-290 Q52,-286 46,-246 Q44,-232 36,-226 Q40,-250 26,-274Z" fill="${h}" stroke="${INK}" stroke-width="2.5"/>`;
+    default: return '';
+  }
+}
+function hairFront(c){
+  const h=c.hc, k=INK;
+  switch(c.hair){
+    case 'short': return `<path d="M-29,-268 Q-32,-304 0,-303 Q32,-304 29,-268 Q26,-284 12,-287 Q2,-280 -10,-288 Q-24,-286 -29,-268Z" fill="${h}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    case 'shortbeard': return `<path d="M-29,-270 Q-30,-302 0,-302 Q30,-302 29,-270 Q22,-288 0,-288 Q-22,-288 -29,-270Z" fill="${h}" stroke="${k}" stroke-width="2.5"/>`
+      +`<path d="M-26,-262 Q-24,-236 0,-234 Q24,-236 26,-262 Q18,-246 10,-248 Q0,-244 -10,-248 Q-18,-246 -26,-262Z" fill="${h}" stroke="${k}" stroke-width="2"/>`;
+    case 'spiky': return `<path d="M-29,-266 L-31,-292 L-22,-286 L-18,-306 L-8,-292 L0,-310 L8,-292 L18,-306 L22,-286 L31,-292 L29,-266 Q20,-282 0,-282 Q-20,-282 -29,-266Z" fill="${h}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    case 'curlyshort': return `<g fill="${h}" stroke="${k}" stroke-width="2.2">${[[-22,-288,10],[-10,-296,11],[4,-298,11],[17,-292,10],[26,-280,8],[-27,-278,8]].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}"/>`).join('')}</g>`;
+    case 'fade': return `<path d="M-28,-272 Q-29,-300 0,-301 Q29,-300 28,-272 Q22,-290 0,-290 Q-22,-290 -28,-272Z" fill="${h}" stroke="${k}" stroke-width="2.5"/>`;
+    case 'curlylong': return `<g fill="${h}" stroke="${k}" stroke-width="2.4">${[[-24,-288,12],[-10,-298,13],[6,-300,13],[21,-292,12],[30,-276,9],[-30,-276,9]].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}"/>`).join('')}</g>`;
+    case 'long': case 'braid': return `<path d="M-30,-266 Q-32,-304 0,-302 Q32,-304 30,-266 Q26,-286 6,-290 Q-12,-280 -30,-266Z" fill="${h}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    case 'bob': return `<path d="M-31,-262 Q-34,-304 0,-302 Q34,-304 31,-262 Q28,-280 20,-284 L-20,-284 Q-28,-280 -31,-262Z" fill="${h}" stroke="${k}" stroke-width="2.5"/>`;
+    case 'ponytail': return `<path d="M-29,-268 Q-31,-303 0,-302 Q31,-303 29,-268 Q20,-288 -2,-290 Q-20,-284 -29,-268Z" fill="${h}" stroke="${k}" stroke-width="2.5"/><circle cx="27" cy="-288" r="4" fill="#22C55E" stroke="${k}" stroke-width="1.5"/>`;
+    case 'bun': return `<circle cx="0" cy="-306" r="13" fill="${h}" stroke="${k}" stroke-width="2.5"/><path d="M-29,-268 Q-31,-302 0,-301 Q31,-302 29,-268 Q22,-290 0,-290 Q-22,-290 -29,-268Z" fill="${h}" stroke="${k}" stroke-width="2.5"/>`;
+    default: return '';
+  }
+}
+
+/* ---------- body ---------- */
+const POSES = {
+  down:   {L:[[-44,-172],[-46,-130]], R:[[44,-172],[46,-130]]},
+  wave:   {L:[[-44,-172],[-46,-130]], R:[[60,-232],[66,-280]], fx:'wave'},
+  crossed:{L:[[-42,-176],[20,-184]], R:[[42,-172],[-20,-176]], over:true},
+  hips:   {L:[[-64,-178],[-36,-146]], R:[[64,-178],[36,-146]]},
+  shrug:  {L:[[-58,-176],[-74,-202]], R:[[58,-176],[74,-202]]},
+  point:  {L:[[-44,-172],[-46,-130]], R:[[62,-210],[96,-214]]},
+  pointL: {L:[[-62,-210],[-96,-214]], R:[[44,-172],[46,-130]]},
+  phone:  {L:[[-28,-166],[-8,-196]], R:[[28,-166],[8,-196]], item:'phone', over:true},
+  hold:   {L:[[-30,-162],[-14,-180]], R:[[30,-162],[14,-180]], over:true},
+  raise:  {L:[[-44,-172],[-46,-130]], R:[[42,-262],[44,-314]]},
+  cheer:  {L:[[-46,-258],[-58,-306]], R:[[46,-258],[58,-306]]},
+  fists:  {L:[[-46,-172],[-48,-132]], R:[[46,-172],[48,-132]], fist:true},
+  chin:   {L:[[-30,-162],[10,-176]], R:[[34,-190],[8,-240]], over:true},
+  facepalm:{L:[[-44,-172],[-46,-130]], R:[[38,-206],[6,-282]], over:true},
+  wipe:   {L:[[-44,-172],[-46,-130]], R:[[34,-200],[12,-262]], over:true},
+  mouth:  {L:[[-30,-200],[-6,-250]], R:[[30,-200],[6,-250]], over:true},
+  table:  {L:[[-40,-170],[-24,-150]], R:[[40,-170],[24,-150]]},
+  slump:  {L:[[-40,-166],[-36,-126]], R:[[40,-166],[36,-126]], slump:true}
+};
+function limb(a,b,c,color,w){
+  const d=`M${a[0]},${a[1]} Q${b[0]},${b[1]} ${c[0]},${c[1]}`;
+  return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w+5}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
+}
+function hand(p,skin,fist){return `<circle cx="${p[0]}" cy="${p[1]}" r="${fist?8.5:7}" fill="${skin}" stroke="${INK}" stroke-width="2.4"/>`;}
+
+function heldItem(t,x,y){
+  switch(t){
+    case 'paper': return `<g transform="translate(${x},${y}) rotate(-6)"><rect x="-20" y="-28" width="40" height="50" rx="2" fill="#fff" stroke="${INK}" stroke-width="2.4"/><path d="M-13,-17 h22 M-13,-9 h26 M-13,-1 h18" stroke="#94A3B8" stroke-width="2"/><text x="6" y="17" font-size="15" font-weight="900" fill="#DC2626" font-family="system-ui">D</text></g>`;
+    case 'paperA': return `<g transform="translate(${x},${y}) rotate(-6)"><rect x="-20" y="-28" width="40" height="50" rx="2" fill="#fff" stroke="${INK}" stroke-width="2.4"/><path d="M-13,-17 h22 M-13,-9 h26 M-13,-1 h18" stroke="#94A3B8" stroke-width="2"/><text x="4" y="17" font-size="15" font-weight="900" fill="#16A34A" font-family="system-ui">A+</text></g>`;
+    case 'tray': return `<g transform="translate(${x},${y})"><rect x="-38" y="-6" width="76" height="12" rx="3" fill="#F59E0B" stroke="${INK}" stroke-width="2.4"/><circle cx="-16" cy="-12" r="9" fill="#FDE68A" stroke="${INK}" stroke-width="2"/><rect x="2" y="-22" width="14" height="17" rx="2" fill="#93C5FD" stroke="${INK}" stroke-width="2"/></g>`;
+    case 'phone': return `<rect x="${x-9}" y="${y-16}" width="18" height="30" rx="4" fill="#111827" stroke="${INK}" stroke-width="2"/><rect x="${x-6}" y="${y-12}" width="12" height="20" rx="2" fill="#38BDF8"/>`;
+    case 'book': return `<g transform="translate(${x},${y})"><rect x="-22" y="-16" width="44" height="30" rx="3" fill="#8B5CF6" stroke="${INK}" stroke-width="2.4"/><path d="M0,-16 v30" stroke="${INK}" stroke-width="2"/></g>`;
+    case 'ball': return `<g transform="translate(${x},${y-6})"><circle r="17" fill="#F97316" stroke="${INK}" stroke-width="2.4"/><path d="M-17,0 h34 M0,-17 v34 M-12,-12 q12,12 0,24 M12,-12 q-12,12 0,24" fill="none" stroke="${INK}" stroke-width="1.6"/></g>`;
+    case 'gift': return `<g transform="translate(${x},${y-6})"><rect x="-20" y="-16" width="40" height="32" rx="3" fill="#F472B6" stroke="${INK}" stroke-width="2.4"/><path d="M0,-16 v32 M-20,0 h40" stroke="#FACC15" stroke-width="5"/><path d="M0,-16 q-12,-14 -14,-2 q4,4 14,2 q12,-14 14,-2 q-4,4 -14,2" fill="#FACC15" stroke="${INK}" stroke-width="1.6"/></g>`;
+    case 'tissue': return `<g transform="translate(${x},${y})"><path d="M-8,-4 q8,-16 16,0 q-8,10 -16,0Z" fill="#fff" stroke="${INK}" stroke-width="2"/></g>`;
+    case 'cards': return `<g transform="translate(${x},${y})"><rect x="-18" y="-22" width="28" height="38" rx="3" fill="#fff" stroke="${INK}" stroke-width="2.2" transform="rotate(-10)"/><rect x="-8" y="-20" width="28" height="38" rx="3" fill="#FEF3C7" stroke="${INK}" stroke-width="2.2" transform="rotate(8)"/></g>`;
+    default: return '';
+  }
+}
+
+function drawChar(o){
+  const c = CAST[o.who] || CAST.ben;
+  const s = (o.s||1)*(c.adult?1.1:1);
+  const floor = o.floor==null?428:o.floor;
+  const pose = POSES[o.pose||'down'] || POSES.down;
+  const away = o.look==='away';
+  const sitDrop = o.sit?58:0;
+  const slump = pose.slump||o.slump;
+  let g = `<g class="ch" data-id="${o.id||o.who}" transform="translate(${o.x},${floor}) scale(${o.flip?-s:s},${s})">`;
+  g += `<g transform="translate(0,${sitDrop})">`;
+  // shadow
+  if(!o.sit) g+=`<ellipse cx="0" cy="2" rx="40" ry="6" fill="#000" opacity=".12"/>`;
+  // legs
+  if (o.sit){
+    g+=`<rect x="-26" y="-132" width="52" height="26" rx="10" fill="${c.pants}" stroke="${INK}" stroke-width="2.5"/>`;
+    g+=`<rect x="-24" y="-112" width="18" height="50" rx="7" fill="${c.pants}" stroke="${INK}" stroke-width="2.5"/><rect x="6" y="-112" width="18" height="50" rx="7" fill="${c.pants}" stroke="${INK}" stroke-width="2.5"/>`;
+    g+=`<ellipse cx="-16" cy="-62" rx="14" ry="7" fill="${c.shoe}" stroke="${INK}" stroke-width="2.4"/><ellipse cx="16" cy="-62" rx="14" ry="7" fill="${c.shoe}" stroke="${INK}" stroke-width="2.4"/>`;
+  } else {
+    g+=`<path d="M-24,-132 L-24,-8 Q-24,-4 -20,-4 L-6,-4 Q-2,-4 -2,-8 L-2,-110 L2,-110 L2,-8 Q2,-4 6,-4 L20,-4 Q24,-4 24,-8 L24,-132Z" fill="${c.pants}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    g+=`<ellipse cx="-15" cy="-4" rx="15" ry="7" fill="${c.shoe}" stroke="${INK}" stroke-width="2.4"/><ellipse cx="15" cy="-4" rx="15" ry="7" fill="${c.shoe}" stroke="${INK}" stroke-width="2.4"/>`;
+  }
+  const sh = slump?8:0; // shoulders drop
+  // back hair (front view) drawn before body
+  if (!away) g+=`<g transform="translate(0,${slump?10:0})">${hairBack(c)}</g>`;
+  // arms behind (if not over)
+  const armW = 13;
+  const Ls=[-34,-214+sh], Rs=[34,-214+sh];
+  const armColor = (c.top==='tee'||c.top==='jersey')? c.skin : c.shirt;
+  const sleeve = c.shirt;
+  const drawArms = ()=>{
+    let a='';
+    a+=limb(Ls,pose.L[0],pose.L[1],armColor,armW)+limb(Rs,pose.R[0],pose.R[1],armColor,armW);
+    // sleeves for tees
+    if (armColor!==sleeve){
+      const sl=(S,E)=>{const mx=S[0]+(E[0]-S[0])*0.33, my=S[1]+(E[1]-S[1])*0.33;return `<path d="M${S[0]},${S[1]} L${mx},${my}" stroke="${INK}" stroke-width="${armW+9}" stroke-linecap="round"/><path d="M${S[0]},${S[1]} L${mx},${my}" stroke="${sleeve}" stroke-width="${armW+4}" stroke-linecap="round"/>`;};
+      a+=sl(Ls,pose.L[0])+sl(Rs,pose.R[0]);
+    }
+    const item = o.item || pose.item;
+    if (item && (o.pose==='hold'||o.pose==='phone'||pose.item)) a+=heldItem(item,(pose.L[1][0]+pose.R[1][0])/2,(pose.L[1][1]+pose.R[1][1])/2-4);
+    a+=hand(pose.L[1],c.skin,pose.fist)+hand(pose.R[1],c.skin,pose.fist);
+    if (o.shake||o.pose==='shake') a+=`<path d="M-30,-196 q-6,4 0,8 M30,-196 q6,4 0,8 M-34,-176 q-6,4 0,8 M34,-176 q6,4 0,8" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+    if (pose.fx==='wave') a+=`<path d="M82,-296 q6,8 0,16 M90,-300 q8,12 0,24" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`;
+    return a;
+  };
+  if (!pose.over) g+=drawArms();
+  // torso
+  const top=-224+sh;
+  g+=`<path d="M-36,${top+14} Q-36,${top} -22,${top} L22,${top} Q36,${top} 36,${top+14} L34,-128 Q34,-122 28,-122 L-28,-122 Q-34,-122 -34,-128Z" fill="${c.shirt}" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>`;
+  if (!away){
+    if (c.top==='hoodie') g+=`<path d="M-14,-170 h28 l4,30 h-36Z" fill="#00000022" stroke="${INK}" stroke-width="2"/><path d="M-8,${top} l-2,26 M8,${top} l2,26" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`;
+    if (c.top==='jersey') g+=`<text x="0" y="-160" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.2" font-family="system-ui">${c.num||''}</text>`;
+    if (c.top==='tie') g+=`<path d="M-12,${top} L0,${top+12} L12,${top}" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M0,${top+12} l-6,8 l6,40 l6,-40Z" fill="#DC2626" stroke="${INK}" stroke-width="2"/>`;
+    if (c.top==='track') g+=`<path d="M0,${top} V-122" stroke="${INK}" stroke-width="2"/><path d="M-34,-200 l68,0" stroke="#fff" stroke-width="5" opacity=".8"/><path d="M-4,${top+4} q-14,30 4,44" fill="none" stroke="#9CA3AF" stroke-width="2"/><circle cx="2" cy="${top+50}" r="6" fill="#CBD5E1" stroke="${INK}" stroke-width="2"/>`;
+  } else {
+    if (c.top==='hoodie') g+=`<path d="M-22,${top} Q0,${top+30} 22,${top}" fill="${c.shirt}" stroke="${INK}" stroke-width="2.2"/>`;
+    if (c.top==='jersey') g+=`<text x="0" y="-160" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.2" font-family="system-ui">${c.num||''}</text>`;
+  }
+  // neck + head
+  const headDy = slump?14:0, tilt = slump? 8 : (o.tilt||0);
+  g+=`<g transform="translate(0,${headDy}) rotate(${tilt},0,-240)">`;
+  g+=`<rect x="-9" y="-246" width="18" height="24" fill="${c.skin}" stroke="${INK}" stroke-width="2.4"/>`;
+  g+=`<circle cx="-28" cy="-266" r="6" fill="${c.skin}" stroke="${INK}" stroke-width="2.4"/><circle cx="28" cy="-266" r="6" fill="${c.skin}" stroke="${INK}" stroke-width="2.4"/>`;
+  g+=`<ellipse cx="0" cy="-268" rx="27" ry="30" fill="${c.skin}" stroke="${INK}" stroke-width="2.6"/>`;
+  if (away){
+    g+=`<ellipse cx="0" cy="-270" rx="28" ry="31" fill="${c.hc}" stroke="${INK}" stroke-width="2.6"/>`;
+    if (c.hair==='curlylong') g+=hairBack(c);
+    if (c.hair==='braid'||c.hair==='long') g+=`<path d="M-28,-268 Q-30,-230 -24,-218 L24,-218 Q30,-230 28,-268Z" fill="${c.hc}" stroke="${INK}" stroke-width="2.4"/>`;
+    if (c.hair==='ponytail') g+=`<path d="M-6,-280 q-4,40 6,58 q10,-18 6,-58Z" fill="${c.hc}" stroke="${INK}" stroke-width="2.4"/>`;
+    if (c.hair==='bun') g+=`<circle cx="0" cy="-304" r="13" fill="${c.hc}" stroke="${INK}" stroke-width="2.5"/>`;
+  } else {
+    const look = slump && (!o.look || o.look==='front') ? 'down' : o.look;
+    g+=eyesFor(o.expr, look)+browsFor(o.expr)+mouthFor(o.expr)+faceExtras(c,o);
+    g+=`<path d="M-1,-262 q-3,4 1,5" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round" opacity=".55"/>`;
+    g+=hairFront(c);
+    if (c.glasses) g+=faceExtras({glasses:true},{});
+  }
+  g+='</g>';
+  if (pose.over) g+=drawArms();
+  g+='</g></g>';
+  return g;
+}
+
+function headTop(o){
+  const c = CAST[o.who]||CAST.ben; const s=(o.s||1)*(c.adult?1.1:1);
+  const floor = o.floor==null?428:o.floor;
+  return {x:o.x, y:floor + ((o.sit?58:0) - 306)*s, s};
+}
+
+/* ---------- props ---------- */
+function prop(p){
+  const x=p.x||0, y=p.y||0, s=p.s||1, k=INK;
+  const T = (inner)=>`<g transform="translate(${x},${y}) scale(${s})">${inner}</g>`;
+  switch(p.t){
+    case 'table': { const w=p.w||300; return T(`<rect x="${-w/2}" y="-10" width="${w}" height="20" rx="6" fill="${p.c||'#38BDF8'}" stroke="${k}" stroke-width="3"/><rect x="${-w/2+16}" y="10" width="14" height="70" fill="#64748B" stroke="${k}" stroke-width="2.4"/><rect x="${w/2-30}" y="10" width="14" height="70" fill="#64748B" stroke="${k}" stroke-width="2.4"/>`); }
+    case 'desk': return T(`<rect x="-70" y="-8" width="140" height="16" rx="4" fill="#FBBF24" stroke="${k}" stroke-width="3"/><rect x="-60" y="8" width="10" height="64" fill="#64748B" stroke="${k}" stroke-width="2.2"/><rect x="50" y="8" width="10" height="64" fill="#64748B" stroke="${k}" stroke-width="2.2"/>`);
+    case 'bench': return T(`<rect x="${-(p.w||200)/2}" y="-8" width="${p.w||200}" height="16" rx="4" fill="#B45309" stroke="${k}" stroke-width="3"/><rect x="${-(p.w||200)/2+12}" y="8" width="10" height="40" fill="#78350F" stroke="${k}" stroke-width="2"/><rect x="${(p.w||200)/2-22}" y="8" width="10" height="40" fill="#78350F" stroke="${k}" stroke-width="2"/>`);
+    case 'tray': return T(heldItem('tray',0,0));
+    case 'paper': return T(heldItem(p.v||'paper',0,0));
+    case 'phone': return T(heldItem('phone',0,0));
+    case 'gift': return T(heldItem('gift',0,0));
+    case 'book': return T(heldItem('book',0,0));
+    case 'ball': return T(heldItem('ball',0,0));
+    case 'backpack': return T(`<rect x="-24" y="-40" width="48" height="56" rx="14" fill="${p.c||'#EF4444'}" stroke="${k}" stroke-width="2.6"/><rect x="-16" y="-10" width="32" height="20" rx="6" fill="#00000022" stroke="${k}" stroke-width="2"/>`);
+    case 'spill': return T(`<path d="M-50,0 q-10,-12 10,-14 q20,-10 34,0 q26,-6 30,6 q16,8 -6,12 q-40,8 -68,-4Z" fill="#FDE68A" stroke="${k}" stroke-width="2.4"/><circle cx="30" cy="-14" r="9" fill="#FCA5A5" stroke="${k}" stroke-width="2"/>`);
+    case 'tissues': return T(`<rect x="-22" y="-20" width="44" height="22" rx="3" fill="#A5F3FC" stroke="${k}" stroke-width="2.4"/><path d="M-6,-20 q6,-18 12,0" fill="#fff" stroke="${k}" stroke-width="2"/>`);
+    case 'note': return T(`<rect x="-14" y="-10" width="28" height="20" rx="2" fill="#FEF08A" stroke="${k}" stroke-width="2.2" transform="rotate(${p.r||-8})"/>`);
+    case 'dog': return T(`<ellipse cx="0" cy="-22" rx="34" ry="18" fill="#D6A35C" stroke="${k}" stroke-width="2.6"/><circle cx="34" cy="-40" r="16" fill="#D6A35C" stroke="${k}" stroke-width="2.6"/><path d="M26,-54 q-8,-4 -6,14" fill="#92400E" stroke="${k}" stroke-width="2"/><circle cx="38" cy="-43" r="2.6" fill="${k}"/><circle cx="48" cy="-37" r="3" fill="${k}"/><path d="M-30,-6 v8 M-14,-6 v8 M14,-6 v8 M24,-6 v8" stroke="${k}" stroke-width="5" stroke-linecap="round"/><path d="M-34,-26 q-16,-12 -12,-24" fill="none" stroke="${k}" stroke-width="3" stroke-linecap="round"/>`);
+    case 'window': return T(`<rect x="-70" y="-60" width="140" height="120" rx="6" fill="#BAE6FD" stroke="${k}" stroke-width="4"/><path d="M0,-60 v120 M-70,0 h140" stroke="${k}" stroke-width="3"/><circle cx="-36" cy="-30" r="12" fill="#FDE047"/>`);
+    case 'clock': return T(`<circle r="20" fill="#fff" stroke="${k}" stroke-width="3"/><path d="M0,0 v-12 M0,0 h9" stroke="${k}" stroke-width="2.6" stroke-linecap="round"/>`);
+    case 'cake': return T(`<rect x="-30" y="-30" width="60" height="30" rx="4" fill="#FBCFE8" stroke="${k}" stroke-width="2.6"/><path d="M-30,-22 q10,8 20,0 q10,8 20,0 q10,8 20,0" fill="none" stroke="#fff" stroke-width="4"/><path d="M-10,-30 v-12 M10,-30 v-12" stroke="#60A5FA" stroke-width="4"/><path d="M-10,-46 q-3,-5 0,-8 q3,3 0,8 M10,-46 q-3,-5 0,-8 q3,3 0,8" fill="#F59E0B"/>`);
+    case 'skateboard': return T(`<rect x="-38" y="-8" width="76" height="9" rx="4.5" fill="#F43F5E" stroke="${k}" stroke-width="2.4"/><circle cx="-24" cy="5" r="5" fill="#fff" stroke="${k}" stroke-width="2"/><circle cx="24" cy="5" r="5" fill="#fff" stroke="${k}" stroke-width="2"/>`);
+    case 'pan': return T(`<ellipse cx="0" cy="0" rx="40" ry="10" fill="#374151" stroke="${k}" stroke-width="2.6"/><rect x="38" y="-4" width="40" height="8" rx="3" fill="#111827" stroke="${k}" stroke-width="2"/>${p.fire?`<path d="M-30,-4 q-6,-30 10,-50 q-2,20 10,24 q2,-24 18,-36 q-4,26 10,34 q8,-14 6,-24 q16,22 6,52Z" fill="#F97316" stroke="${k}" stroke-width="2.4"/><path d="M-12,-6 q0,-18 10,-24 q0,14 8,16 q6,-8 6,-14 q8,14 2,22Z" fill="#FDE047"/>`:''}`);
+    case 'pizza': return T(`<path d="M-26,0 L26,0 L0,-46Z" fill="#FCD34D" stroke="${k}" stroke-width="2.6" stroke-linejoin="round"/><path d="M-28,2 L28,2" stroke="#B45309" stroke-width="7" stroke-linecap="round"/><circle cx="-6" cy="-14" r="5" fill="#DC2626"/><circle cx="6" cy="-26" r="4" fill="#DC2626"/>`);
+    case 'thermo': return T(`<rect x="-5" y="-40" width="10" height="44" rx="5" fill="#fff" stroke="${k}" stroke-width="2.4"/><circle cy="6" r="9" fill="#EF4444" stroke="${k}" stroke-width="2.4"/><rect x="-2" y="-24" width="4" height="26" fill="#EF4444"/>`);
+    case 'trophy': return T(`<path d="M-20,-50 h40 v10 q0,26 -20,30 q-20,-4 -20,-30Z" fill="#FACC15" stroke="${k}" stroke-width="2.6"/><rect x="-6" y="-10" width="12" height="14" fill="#FACC15" stroke="${k}" stroke-width="2.2"/><rect x="-16" y="4" width="32" height="8" rx="2" fill="#78350F" stroke="${k}" stroke-width="2.2"/>`);
+    case 'sign': return T(`<rect x="-60" y="-24" width="120" height="48" rx="6" fill="${p.c||'#FEF9C3'}" stroke="${k}" stroke-width="3"/><text y="7" text-anchor="middle" font-size="${p.fs||20}" font-weight="900" font-family="system-ui" fill="${k}">${esc(p.text||'')}</text>`);
+    case 'text': return T(`<text text-anchor="middle" font-size="${p.fs||22}" font-weight="900" font-family="system-ui" fill="${p.c||k}">${esc(p.text||'')}</text>`);
+    case 'laughs': return T(`<text font-size="22" font-weight="900" font-family="system-ui" fill="${k}" transform="rotate(-10)">ha ha!</text>`);
+    case 'zzz': return T(`<text font-size="22" font-weight="900" font-family="system-ui" fill="#6366F1">z z z</text>`);
+    case 'hearts': return T(`<path d="M0,6 q-14,-10 -8,-18 q6,-6 8,2 q2,-8 8,-2 q6,8 -8,18Z" fill="#F43F5E" stroke="${k}" stroke-width="1.6"/>`);
+    case 'music': return T(`<path d="M0,0 v-26 l18,-6 v24" fill="none" stroke="${k}" stroke-width="3"/><circle cx="-4" cy="0" r="6" fill="${k}"/><circle cx="14" cy="-8" r="6" fill="${k}"/>`);
+    case 'arrow': return T(`<path d="M0,0 L${p.dx||60},${p.dy||0}" stroke="#F43F5E" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowhead)"/>`);
+    case 'whistle': return T(`<path d="M-30,-40 q20,30 30,36" fill="none" stroke="#64748B" stroke-width="2"/><rect x="-4" y="-10" width="26" height="14" rx="7" fill="#CBD5E1" stroke="${k}" stroke-width="2.4"/><circle cx="4" cy="-3" r="5" fill="#94A3B8" stroke="${k}" stroke-width="1.6"/>`);
+    case 'cast': return T(`<rect x="-10" y="-20" width="20" height="40" rx="8" fill="#fff" stroke="${k}" stroke-width="2.4"/>`);
+    case 'chair': return T(`<rect x="-30" y="-70" width="60" height="70" rx="8" fill="${p.c||'#A78BFA'}" stroke="${k}" stroke-width="2.6"/><rect x="-36" y="-8" width="72" height="18" rx="6" fill="${p.c||'#A78BFA'}" stroke="${k}" stroke-width="2.6"/>`);
+    default: return '';
+  }
+}
+
+/* ---------- backgrounds ---------- */
+function bg(kind, tint){
+  const k=INK;
+  const floor = (c1,c2)=>`<rect y="320" width="800" height="130" fill="${c1}"/>${c2?Array.from({length:9},(_,i)=>`<path d="M${i*100},320 L${i*100-60},450" stroke="${c2}" stroke-width="2"/>`).join(''):''}<path d="M0,320 H800" stroke="${k}" stroke-width="3"/>`;
+  switch(kind){
+    case 'hall': {
+      let s=`<rect width="800" height="450" fill="#E0E7FF"/><rect y="0" width="800" height="30" fill="#C7D2FE"/>`;
+      for(let i=0;i<10;i++){const x=i*82+4;s+=`<rect x="${x}" y="70" width="76" height="250" rx="3" fill="${['#60A5FA','#34D399','#60A5FA','#F87171','#60A5FA','#FBBF24','#60A5FA','#34D399','#60A5FA','#A78BFA'][i]}" stroke="${k}" stroke-width="2.6"/><path d="M${x+20},96 h36 M${x+20},104 h36 M${x+20},112 h36" stroke="${k}" stroke-width="2" opacity=".5"/><rect x="${x+58}" y="190" width="6" height="22" rx="2" fill="#E5E7EB" stroke="${k}" stroke-width="1.6"/>`;}
+      s+=`<rect x="300" y="12" width="200" height="10" rx="5" fill="#FEF9C3" stroke="${k}" stroke-width="2"/>`;
+      return s+floor('#CBD5E1','#B6C2D3');
+    }
+    case 'cafe': {
+      let s=`<rect width="800" height="450" fill="#FEF3C7"/><rect y="250" width="800" height="70" fill="#FDE68A"/>`;
+      [[150,130],[650,130]].forEach(([x,y])=>{s+=prop({t:'window',x,y});});
+      s+=`<rect x="300" y="60" width="200" height="56" rx="8" fill="#F97316" stroke="${k}" stroke-width="3"/><text x="400" y="98" text-anchor="middle" font-size="26" font-weight="900" fill="#fff" font-family="system-ui">LUNCH</text>`;
+      return s+floor('#E7E5E4','#D6D3D1');
+    }
+    case 'class': {
+      let s=`<rect width="800" height="450" fill="#DCFCE7"/>`;
+      s+=`<rect x="180" y="50" width="440" height="190" rx="6" fill="#F8FAFC" stroke="${k}" stroke-width="4"/><rect x="180" y="236" width="440" height="10" fill="#94A3B8" stroke="${k}" stroke-width="2"/><path d="M210,90 h160 M210,120 h220 M210,150 h120" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>`;
+      s+=prop({t:'clock',x:700,y:80});
+      s+=`<rect x="40" y="70" width="90" height="120" rx="4" fill="#FDE68A" stroke="${k}" stroke-width="3"/><rect x="52" y="84" width="30" height="30" fill="#F472B6"/><rect x="88" y="94" width="30" height="40" fill="#60A5FA"/><rect x="56" y="124" width="56" height="50" fill="#34D399"/>`;
+      return s+floor('#D6D3D1','#C4BFBA');
+    }
+    case 'gym': {
+      let s=`<rect width="800" height="450" fill="#FFEDD5"/><rect y="200" width="800" height="120" fill="#FED7AA"/>`;
+      for(let r=0;r<4;r++) s+=`<rect x="0" y="${210+r*27}" width="800" height="24" fill="#94A3B8" stroke="${k}" stroke-width="2" opacity=".6"/>`;
+      s+=`<rect x="640" y="40" width="110" height="74" fill="#fff" stroke="${k}" stroke-width="3"/><rect x="672" y="66" width="46" height="32" fill="none" stroke="#EF4444" stroke-width="3"/><ellipse cx="695" cy="124" rx="30" ry="7" fill="none" stroke="#EF4444" stroke-width="4"/><path d="M670,126 l8,34 M720,126 l-8,34 M688,128 l2,34 M702,128 l-2,34" stroke="#fff" stroke-width="2"/>`;
+      s+=`<rect y="320" width="800" height="130" fill="#F59E0B"/><path d="M0,320 H800" stroke="${k}" stroke-width="3"/>`;
+      for(let i=0;i<16;i++) s+=`<path d="M${i*52},320 L${i*52-30},450" stroke="#D97706" stroke-width="2"/>`;
+      s+=`<ellipse cx="400" cy="400" rx="140" ry="34" fill="none" stroke="#fff" stroke-width="4"/>`;
+      return s;
+    }
+    case 'bus': {
+      let s=`<rect width="800" height="450" fill="#FEF08A"/>`;
+      for(let i=0;i<4;i++) s+=`<rect x="${30+i*195}" y="50" width="170" height="120" rx="14" fill="#BAE6FD" stroke="${k}" stroke-width="4"/><path d="M${40+i*195},150 q40,-30 80,-10 q30,10 70,-20" fill="none" stroke="#86EFAC" stroke-width="10"/>`;
+      s+=`<rect y="190" width="800" height="14" fill="#CA8A04" stroke="${k}" stroke-width="2"/>`;
+      return s+floor('#78716C','#6B6460');
+    }
+    case 'outside': {
+      let s=`<rect width="800" height="450" fill="#BAE6FD"/><circle cx="700" cy="70" r="36" fill="#FDE047" stroke="${k}" stroke-width="3"/>`;
+      s+=`<path d="M40,80 q20,-24 46,-8 q20,-20 40,4 q24,0 18,20 h-100 q-20,-4 -4,-16Z" fill="#fff" stroke="${k}" stroke-width="2.4"/>`;
+      s+=`<rect x="420" y="130" width="260" height="190" fill="#FCA5A5" stroke="${k}" stroke-width="3"/><path d="M410,130 L550,70 L690,130Z" fill="#B91C1C" stroke="${k}" stroke-width="3"/>`;
+      for(let i=0;i<3;i++) s+=`<rect x="${444+i*80}" y="160" width="50" height="50" fill="#E0F2FE" stroke="${k}" stroke-width="2.6"/>`;
+      s+=`<rect x="525" y="250" width="50" height="70" fill="#7C2D12" stroke="${k}" stroke-width="2.6"/>`;
+      s+=`<rect x="160" y="180" width="22" height="140" fill="#92400E" stroke="${k}" stroke-width="3"/><circle cx="171" cy="160" r="64" fill="#4ADE80" stroke="${k}" stroke-width="3"/>`;
+      s+=`<rect y="320" width="800" height="130" fill="#86EFAC"/><path d="M0,320 H800" stroke="${k}" stroke-width="3"/><path d="M300,450 L360,320 H440 L500,450Z" fill="#E7E5E4" stroke="${k}" stroke-width="2"/>`;
+      return s;
+    }
+    case 'nurse': {
+      let s=`<rect width="800" height="450" fill="#F0F9FF"/><rect x="560" y="60" width="90" height="90" rx="8" fill="#fff" stroke="${k}" stroke-width="3"/><path d="M605,78 v54 M578,105 h54" stroke="#EF4444" stroke-width="14"/>`;
+      s+=`<rect x="60" y="230" width="260" height="40" rx="10" fill="#fff" stroke="${k}" stroke-width="3"/><rect x="60" y="270" width="16" height="50" fill="#94A3B8" stroke="${k}" stroke-width="2"/><rect x="304" y="270" width="16" height="50" fill="#94A3B8" stroke="${k}" stroke-width="2"/><rect x="70" y="214" width="70" height="22" rx="10" fill="#E0F2FE" stroke="${k}" stroke-width="2.4"/>`;
+      return s+floor('#E2E8F0','#CBD5E1');
+    }
+    case 'skate': {
+      let s=`<rect width="800" height="450" fill="#C4B5FD"/><circle cx="120" cy="80" r="40" fill="#FDBA74" stroke="${k}" stroke-width="3"/>`;
+      s+=`<path d="M480,320 Q560,320 600,240 Q640,170 800,160 V320Z" fill="#A8A29E" stroke="${k}" stroke-width="3"/><path d="M600,240 Q640,170 800,160" fill="none" stroke="#fff" stroke-width="4"/>`;
+      s+=`<text x="230" y="230" font-size="40" font-weight="900" fill="#F472B6" stroke="${k}" stroke-width="2" font-family="system-ui" transform="rotate(-6 230 230)">SKATE</text>`;
+      return s+`<rect y="320" width="800" height="130" fill="#D6D3D1"/><path d="M0,320 H800" stroke="${k}" stroke-width="3"/>`;
+    }
+    case 'stage': {
+      let s=`<rect width="800" height="450" fill="#312E81"/><path d="M0,0 h140 q-30,160 0,330 h-140Z M800,0 h-140 q30,160 0,330 h140Z" fill="#BE123C" stroke="${k}" stroke-width="3"/>`;
+      s+=`<path d="M300,0 L180,330 H620 L500,0Z" fill="#FEF9C3" opacity=".25"/>`;
+      return s+`<rect y="320" width="800" height="130" fill="#92400E"/><path d="M0,320 H800" stroke="${k}" stroke-width="3"/>`;
+    }
+    case 'home': {
+      let s=`<rect width="800" height="450" fill="#FCE7F3"/>`+prop({t:'window',x:620,y:140});
+      s+=`<rect x="80" y="120" width="120" height="80" rx="4" fill="#1F2937" stroke="${k}" stroke-width="3"/><rect x="88" y="128" width="104" height="64" fill="#38BDF8"/>`;
+      return s+floor('#D6BCFA','');
+    }
+    case 'kitchen': {
+      let s=`<rect width="800" height="450" fill="#ECFCCB"/><rect x="0" y="210" width="800" height="110" fill="#FDE68A" stroke="${k}" stroke-width="3"/><rect x="0" y="200" width="800" height="14" fill="#A3A3A3" stroke="${k}" stroke-width="2"/>`;
+      for(let i=0;i<5;i++) s+=`<rect x="${20+i*160}" y="60" width="130" height="90" rx="4" fill="#FEF3C7" stroke="${k}" stroke-width="2.6"/>`;
+      return s+floor('#E5E7EB','#D1D5DB');
+    }
+    case 'chat': return `<rect width="800" height="450" fill="#EEF2FF"/>`;
+    default: return `<rect width="800" height="450" fill="${tint||'#E0F2FE'}"/><circle cx="120" cy="90" r="160" fill="#fff" opacity=".35"/><circle cx="700" cy="380" r="200" fill="#fff" opacity=".3"/>`;
+  }
+}
+
+/* ---------- face close-up ---------- */
+function faceSVG(f){
+  const c=CAST[f.who]||CAST.ben;
+  const o={who:f.who, x:200, floor:0, expr:f.expr, look:f.look, tear:f.tear, blush:f.blush, sweat:f.sweat};
+  // render just head region by drawing char and cropping via viewBox
+  return `<svg class="facesvg" viewBox="-66 -334 132 124" role="img" aria-label="${esc(c.name)} face"><rect x="-66" y="-334" width="132" height="124" fill="${f.tint||'#FEF3C7'}"/>${drawChar(Object.assign(o,{x:0}))}</svg>`;
+}
+
+/* ---------- full scene ---------- */
+function sceneSVG(sc){
+  if (sc.face) return faceSVG(Object.assign({tint:sc.tint},sc.face));
+  let s=`<svg class="scenesvg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(sc.alt||'scene')}"><defs><marker id="arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#F43F5E"/></marker></defs>`;
+  s+=bg(sc.bg, sc.tint);
+  (sc.props||[]).filter(p=>!p.front).forEach(p=>s+=prop(p));
+  (sc.chars||[]).slice().sort((a,b)=>(a.z||0)-(b.z||0)).forEach(ch=>s+=drawChar(ch));
+  (sc.props||[]).filter(p=>p.front).forEach(p=>s+=prop(p));
+  s+='</svg>';
+  return s;
+}
+
+/* bubble positions in % of the 800x450 box */
+function bubbleAnchors(sc){
+  return (sc.bubbles||[]).map(b=>{
+    let ax=b.x, ay=b.y;
+    if (b.who){const ch=(sc.chars||[]).find(c=>(c.id||c.who)===b.who); if(ch){const h=headTop(ch); ax=h.x; ay=h.y;}}
+    ax=(ax||400)+(b.dx||0); ay=(ay||100)+(b.dy==null?-10:b.dy);
+    return Object.assign({}, b, {px: ax/8, py: ay/4.5});
+  });
+}
+function charBoxes(sc){
+  return (sc.chars||[]).map(ch=>{
+    const c=CAST[ch.who]||CAST.ben, s=(ch.s||1)*(c.adult?1.1:1), floor=ch.floor==null?428:ch.floor;
+    const top=floor+((ch.sit?58:0)-312)*s, bottom=floor+(ch.sit?0:6)*s;
+    return {id:ch.id||ch.who, name:c.name, left:(ch.x-48*s)/8, top:top/4.5, w:96*s/8, h:(bottom-top)/4.5};
+  });
+}
+
+
+/* ============================================================
+   APP
+   ============================================================ */
+const KEY = 'scope-lab-data-v1';
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+const uid = ()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const todayISO = ()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const fmtDate = iso=>{if(!iso)return '';const [y,m,d]=iso.split('-');return `${+m}/${+d}/${y}`;};
+const pct = (a,b)=>b?Math.round(a*100/b):0;
+
+let DB = load();
+function blank(){return {v:1, students:[], sessions:[], media:{}, prefs:{slpName:'', voiceRate:SETTINGS.voiceRate, short:SETTINGS.shortVersionDefault, practice:Object.assign({},SETTINGS.practiceBySchedule)}};}
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.v===1){const b=blank(); d.prefs=Object.assign(b.prefs,d.prefs||{}); d.media=d.media||{}; return d;}}catch(e){}
+  return blank();
+}
+function save(){
+  try{localStorage.setItem(KEY, JSON.stringify(DB)); return true;}
+  catch(e){toast('Could not save on this laptop. Storage may be full. Use Data → Save data file now.'); return false;}
+}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+
+/* ---------- read aloud ---------- */
+function speak(text){
+  if(!('speechSynthesis' in window)||!text) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(String(text).replace(/[“”]/g,'').replace(/…/g,'...'));
+  u.rate=DB.prefs.voiceRate||0.9; speechSynthesis.speak(u);
+}
+const spk = t => SETTINGS.readAloud ? `<button class="spk" data-say="${esc(t)}" aria-label="Read aloud" title="Read aloud">🔊</button>` : '';
+document.addEventListener('click', e=>{const b=e.target.closest('[data-say]'); if(b){e.stopPropagation(); speak(b.dataset.say);}});
+
+/* ---------- lesson helpers ---------- */
+const isBuilt = n => !!LESSONS[n];
+const catalog = n => CATALOG.find(c=>c[0]===n);
+const unitOf = n => UNITS.find(u=>u.n===catalog(n)[1]);
+const codesFor = (n, grade) => catalog(n)[3].map(c=>`${grade||6}.${c}`);
+function practiceTarget(st){ return (DB.prefs.practice||{})[st.schedule] ?? SETTINGS.practiceBySchedule[st.schedule] ?? 1; }
+function nextLabel(nx){ if(!nx) return ''; const c=catalog(nx.lesson); return `Lesson ${nx.lesson} · ${c?c[2]:''} · ${nx.type==='core'?'Core lesson':'Practice '+nx.p}`; }
+function computeNext(st, lessonId, type, p){
+  const target = practiceTarget(st);
+  if(type==='core') return target>0 ? {lesson:lessonId, type:'practice', p:1} : advance(lessonId);
+  if(p < target) return {lesson:lessonId, type:'practice', p:p+1};
+  return advance(lessonId, p);
+  function advance(id, p){ const n=id+1; if(n<=40 && isBuilt(n)) return {lesson:n, type:'core', p:0}; return {lesson:id, type:'practice', p:(p||0)+1, waiting:n<=40?n:null}; }
+}
+function practiceRuns(stId, lessonId){ return DB.sessions.filter(s=>s.studentId===stId && s.lesson===lessonId && s.type==='practice').length; }
+function rotate(arr, start, n){ if(!arr.length) return []; if(arr.length<=n) return arr.slice(); const out=[]; for(let i=0;i<n;i++) out.push(arr[(start+i)%arr.length]); return out; }
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function topBar(){
+  return `<div class="top"><div class="logo"><div class="lens">${'SCOPE'.split('').map(k=>`<span style="background:${SCOPE_STEPS[k].color}">${k}</span>`).join('')}</div><h1>Perspective Lab</h1></div>
+  <div class="spacer"></div>
+  <button class="btn" data-go="home">Students</button>
+  <button class="btn" data-go="library">Lessons</button>
+  <button class="btn" data-go="data">Data</button>
+  <button class="btn" data-go="settings">Settings</button></div>`;
+}
+document.addEventListener('click', e=>{const g=e.target.closest('[data-go]'); if(!g) return; const v=g.dataset.go;
+  if(v==='home') renderHome(); else if(v==='library') renderLibrary(); else if(v==='data') renderData(); else if(v==='settings') openSettings(); });
+
+function renderHome(){
+  speechSynthesis && speechSynthesis.cancel && speechSynthesis.cancel();
+  const app=$('#app');
+  const sts=DB.students.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  app.innerHTML = topBar()+`<div class="wrap">
+    <div class="row"><h2 style="font-size:28px">Students</h2><div class="spacer"></div><button class="btn primary" id="addSt">+ Add student</button></div>
+    ${sts.length? `<div class="roster">${sts.map(st=>{
+      const last=DB.sessions.filter(s=>s.studentId===st.id).sort((a,b)=>b.ts-a.ts)[0];
+      const nx=st.next, c=catalog(nx.lesson);
+      return `<div class="scard">
+        <div class="row"><h3>${esc(st.name)}</h3><div class="spacer"></div><span class="chip">Gr ${st.grade}</span><span class="chip">${st.schedule}x / week</span></div>
+        <div class="meta">${last?`Last session ${fmtDate(last.date)} · ${last.pctInd}% independent`:'No sessions yet'}</div>
+        <div class="next"><div class="small muted">Next session</div><b>${nx.type==='core'?'Core':'Practice '+nx.p} · Lesson ${nx.lesson}</b><div>${esc(c?c[2]:'')}</div>${nx.waiting?`<div class="small muted">Lesson ${nx.waiting} isn’t built yet, so this is extra practice.</div>`:''}</div>
+        <div class="row"><button class="btn go big" data-start="${st.id}" style="flex:1;justify-content:center">▶ Start</button><button class="btn" data-st="${st.id}">Details</button></div>
+      </div>`;}).join('')}</div>`
+    : `<div class="empty" style="margin-top:16px"><h2>Add your first student</h2><p class="muted">Use first name and last initial. Everything stays on this laptop.</p><button class="btn primary big" id="addSt2">+ Add student</button></div>`}
+    <p class="small muted" style="margin-top:24px">Data is saved in this browser on this laptop. Back it up now and then with <b>Data → Save data file</b>.</p>
+  </div>`;
+  $('#addSt')&&($('#addSt').onclick=()=>editStudent());
+  $('#addSt2')&&($('#addSt2').onclick=()=>editStudent());
+  $$('[data-start]').forEach(b=>b.onclick=()=>{const st=DB.students.find(s=>s.id===b.dataset.start); startSession(st, st.next.lesson, st.next.type, st.next.p);});
+  $$('[data-st]').forEach(b=>b.onclick=()=>renderStudent(b.dataset.st));
+}
+
+function lessonOptions(sel){ return CATALOG.filter(c=>isBuilt(c[0])).map(c=>`<option value="${c[0]}" ${c[0]==sel?'selected':''}>Lesson ${c[0]}: ${esc(c[2])}</option>`).join(''); }
+
+function editStudent(st){
+  const isNew=!st; st=st||{name:'',grade:6,schedule:1,goal:'',next:{lesson:1,type:'core',p:0}};
+  modal(`<h2>${isNew?'Add student':'Edit student'}</h2>
+    <label>Name (first name + last initial)</label><input id="f_name" value="${esc(st.name)}" placeholder="Jordan M." maxlength="40">
+    <div class="row" style="gap:14px"><div style="flex:1"><label>Grade</label><select id="f_grade">${[6,7,8].map(g=>`<option ${g==st.grade?'selected':''}>${g}</option>`).join('')}</select></div>
+    <div style="flex:1"><label>Sessions per week</label><select id="f_sched">${[1,2,3].map(g=>`<option value="${g}" ${g==st.schedule?'selected':''}>${g}x per week</option>`).join('')}</select></div></div>
+    <label>Goal focus (optional)</label><input id="f_goal" value="${esc(st.goal||'')}" placeholder="e.g., interpret meaning using context clues">
+    ${isNew?`<label>Start at</label><select id="f_start">${lessonOptions(1)}</select>`:''}
+    <p class="small muted">Practice sessions after each core lesson: ${'1x = '+(DB.prefs.practice[1])+', 2x = '+DB.prefs.practice[2]+', 3x = '+DB.prefs.practice[3]} (change in Settings).</p>
+    <div class="actions"><button class="btn" data-close>Cancel</button><button class="btn primary" id="f_save">${isNew?'Add student':'Save'}</button></div>`,
+    m=>{ $('#f_name',m).focus(); $('#f_save',m).onclick=()=>{
+      const name=$('#f_name',m).value.trim(); if(!name){toast('Type a name.');return;}
+      st.name=name; st.grade=+$('#f_grade',m).value; st.schedule=+$('#f_sched',m).value; st.goal=$('#f_goal',m).value.trim();
+      if(isNew){st.id=uid(); st.created=todayISO(); st.next={lesson:+$('#f_start',m).value,type:'core',p:0}; DB.students.push(st);}
+      save(); closeModal(); isNew?renderHome():renderStudent(st.id);
+    };});
+}
+
+/* ---------- modal ---------- */
+function modal(html, init){
+  closeModal();
+  const bgEl=document.createElement('div'); bgEl.className='modal-bg'; bgEl.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  bgEl.addEventListener('click',e=>{if(e.target===bgEl||e.target.closest('[data-close]')) closeModal();});
+  document.body.appendChild(bgEl); init&&init(bgEl);
+}
+function closeModal(){ $$('.modal-bg').forEach(m=>m.remove()); }
+function confirmBox(title, body, okText, onOk){
+  modal(`<h2>${esc(title)}</h2><p>${body}</p><div class="actions"><button class="btn" data-close>Cancel</button><button class="btn danger" id="cOk">${esc(okText)}</button></div>`,
+    m=>{$('#cOk',m).onclick=()=>{closeModal(); onOk();};});
+}
+
+/* ============================================================
+   STUDENT DETAIL
+   ============================================================ */
+function renderStudent(id){
+  const st=DB.students.find(s=>s.id===id); if(!st) return renderHome();
+  const ss=DB.sessions.filter(s=>s.studentId===id).sort((a,b)=>a.ts-b.ts);
+  const app=$('#app');
+  app.innerHTML = topBar()+`<div class="wrap">
+    <div class="row"><button class="btn ghost" data-go="home">← Students</button></div>
+    <div class="row" style="margin-top:6px"><h2 style="font-size:30px">${esc(st.name)}</h2><span class="chip">Grade ${st.grade}</span><span class="chip">${st.schedule}x per week</span>
+      <div class="spacer"></div><button class="btn" id="edit">Edit</button><button class="btn" id="csv">Export CSV</button><button class="btn danger" id="del">Delete</button></div>
+    ${st.goal?`<p class="muted">Goal focus: ${esc(st.goal)}</p>`:''}
+    <div class="panel" style="margin-top:14px">
+      <div class="row"><div><div class="small muted">Next session</div><b style="font:800 18px var(--head)">${esc(nextLabel(st.next))}</b></div><div class="spacer"></div>
+      <button class="btn" id="chgNext">Change</button><button class="btn go" id="start">▶ Start</button></div>
+    </div>
+    <div class="panel graph" style="margin-top:14px"><h3 style="margin-bottom:8px">Progress (quick check)</h3>${graph(ss)}</div>
+    <h3 style="margin:18px 0 8px">Sessions</h3>
+    ${ss.length?`<table><thead><tr><th>Date</th><th>Lesson</th><th>Type</th><th>Items</th><th>Indep.</th><th>Prompted</th><th>Incorrect</th><th>% Indep.</th><th>Min</th><th>Notes</th><th></th></tr></thead><tbody>
+      ${ss.slice().reverse().map(s=>`<tr><td>${fmtDate(s.date)}</td><td>${s.lesson}. ${esc(s.title)}</td><td>${s.type==='core'?'Core':'Practice '+s.p}${s.short?' (short)':''}</td><td>${s.n}</td><td>${s.ind}</td><td>${s.prm}</td><td>${s.inc}</td><td><b>${s.pctInd}%</b></td><td>${s.minutes}</td><td>${esc(s.notes||'')}</td><td><button class="btn ghost small" data-delss="${s.id}" title="Delete session">✕</button></td></tr>`).join('')}
+    </tbody></table>`:'<p class="muted">No sessions yet.</p>'}
+  </div>`;
+  $('#edit').onclick=()=>editStudent(st);
+  $('#csv').onclick=()=>exportCSV(DB.sessions.filter(s=>s.studentId===id), st.name.replace(/\W+/g,'-'));
+  $('#start').onclick=()=>startSession(st, st.next.lesson, st.next.type, st.next.p);
+  $('#del').onclick=()=>confirmBox('Delete '+st.name+'?', 'This removes the student and <b>all of their session data</b> from this laptop. It cannot be undone. Save a data file first if you might need it.', 'Delete student', ()=>{DB.sessions=DB.sessions.filter(s=>s.studentId!==id); DB.students=DB.students.filter(s=>s.id!==id); save(); renderHome();});
+  $$('[data-delss]').forEach(b=>b.onclick=()=>confirmBox('Delete this session?','This session’s data will be removed. It cannot be undone.','Delete session',()=>{DB.sessions=DB.sessions.filter(s=>s.id!==b.dataset.delss); save(); renderStudent(id);}));
+  $('#chgNext').onclick=()=>modal(`<h2>Change next session</h2>
+    <label>Lesson</label><select id="n_l">${lessonOptions(st.next.lesson)}</select>
+    <label>Type</label><select id="n_t"><option value="core" ${st.next.type==='core'?'selected':''}>Core lesson</option><option value="practice" ${st.next.type==='practice'?'selected':''}>Practice</option></select>
+    <div class="actions"><button class="btn" data-close>Cancel</button><button class="btn primary" id="n_s">Save</button></div>`,
+    m=>{$('#n_s',m).onclick=()=>{const t=$('#n_t',m).value; st.next={lesson:+$('#n_l',m).value, type:t, p:t==='core'?0:1}; save(); closeModal(); renderStudent(id);};});
+}
+function graph(ss){
+  if(ss.length<1) return '<p class="muted">The graph appears after the first session.</p>';
+  const W=900,H=180,pad=34, n=ss.length, xs=i=> n===1? W/2 : pad+i*(W-2*pad)/(n-1), ys=v=>H-pad-(v/100)*(H-2*pad);
+  const line=(key,col)=>`<polyline fill="none" stroke="${col}" stroke-width="3" points="${ss.map((s,i)=>xs(i)+','+ys(s[key])).join(' ')}"/>`+ss.map((s,i)=>`<circle cx="${xs(i)}" cy="${ys(s[key])}" r="5" fill="${col}" stroke="#1F1B3A" stroke-width="1.5"><title>${fmtDate(s.date)} L${s.lesson}: ${s[key]}%</title></circle>`).join('');
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Progress graph">`;
+  [0,50,80,100].forEach(v=>g+=`<line x1="${pad}" x2="${W-pad}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v===80?'#16A34A':'#CFD3EE'}" stroke-dasharray="${v===80?'6 4':''}"/><text x="4" y="${ys(v)+4}" font-size="11" fill="#5B5A7A">${v}%</text>`);
+  g+=line('pctCorrect','#F59E0B')+line('pctInd','#0EA5B7');
+  g+=ss.map((s,i)=>`<text x="${xs(i)}" y="${H-10}" font-size="10" text-anchor="middle" fill="#5B5A7A">L${s.lesson}${s.type==='core'?'':'p'}</text>`).join('');
+  g+='</svg><div class="small row" style="gap:16px"><span><b style="color:#0EA5B7">●</b> % independent</span><span><b style="color:#F59E0B">●</b> % correct (independent + prompted)</span><span><b style="color:#16A34A">- -</b> '+SETTINGS.masteryPercent+'% mastery line</span></div>';
+  return g;
+}
+
+/* ============================================================
+   LIBRARY + MEDIA
+   ============================================================ */
+let libGrade=6;
+function renderLibrary(){
+  const app=$('#app');
+  app.innerHTML = topBar()+`<div class="wrap">
+    <div class="row"><h2 style="font-size:28px">Lessons</h2><div class="spacer"></div><label style="margin:0">Show standards for</label><select id="lg" style="width:auto">${[6,7,8].map(g=>`<option value="${g}" ${g==libGrade?'selected':''}>Grade ${g}</option>`).join('')}</select></div>
+    <p class="muted">40 core lessons, each with a practice lesson. Preview runs a lesson without saving data. Add your own video or picture to any built lesson.</p>
+    ${UNITS.map(u=>`<div class="unit"><h2><span class="num" style="background:${u.color}">${u.n}</span>${esc(u.title)}</h2><div class="lgrid">
+      ${CATALOG.filter(c=>c[1]===u.n).map(c=>{const b=isBuilt(c[0]); const md=DB.media[c[0]];
+        return `<div class="lcard ${b?'':'soon'}"><div class="n">LESSON ${c[0]}</div><h4>${esc(c[2])}</h4>
+        <div class="codes">ND ELA: ${codesFor(c[0],libGrade).join(', ')}</div>
+        ${b?`<div class="small kid">“${esc(LESSONS[c[0]].goal)}”</div>
+        <div class="row" style="gap:6px;margin-top:4px"><button class="btn small" data-prev="${c[0]}" data-t="core">Preview core</button><button class="btn small" data-prev="${c[0]}" data-t="practice">Preview practice</button><button class="btn small" data-media="${c[0]}">${md&&(md.video||md.pic)?'🎬 Media ✓':'+ Media'}</button><button class="btn small ghost" data-std="${c[0]}">Standards</button></div>`
+        :'<div class="small muted">Coming in a later build</div>'}</div>`;}).join('')}
+    </div></div>`).join('')}
+  </div>`;
+  $('#lg').onchange=e=>{libGrade=+e.target.value; renderLibrary();};
+  $$('[data-prev]').forEach(b=>b.onclick=()=>startSession(null, +b.dataset.prev, b.dataset.t, 1));
+  $$('[data-media]').forEach(b=>b.onclick=()=>editMedia(+b.dataset.media));
+  $$('[data-std]').forEach(b=>b.onclick=()=>{const n=+b.dataset.std; modal(`<h2>Lesson ${n} standards</h2><p class="small muted">ND ELA Content Standards (June 2023)</p>${catalog(n)[3].map(c=>`<p><b>${libGrade}.${c}</b> ${esc((STANDARDS[c]||{})[libGrade]||'')}</p>`).join('')}<p class="small muted">SEL goal codes: ${(LESSONS[n].sel||[]).join(', ')||'not added yet (see SEL_GOALS in the file)'}.</p><div class="actions"><button class="btn primary" data-close>Close</button></div>`);});
+}
+
+function ytId(u){ const m=String(u||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m?m[1]:null; }
+function editMedia(n){
+  const md=Object.assign({video:'',pic:'',note:''}, DB.media[n]||{});
+  const L=LESSONS[n];
+  modal(`<h2>Media for Lesson ${n}</h2><p class="small muted">${esc(catalog(n)[2])}. Shows as tabs next to the built-in scene, in the core and practice lessons. The SCOPE questions work with any media.</p>
+    <label>Video link (YouTube or any link)</label><input id="m_v" value="${esc(md.video)}" placeholder="https://www.youtube.com/watch?v=...">
+    <p class="small muted">Videos need internet. Preview the whole video first. Follow your district’s video policy.</p>
+    <label>Picture</label>
+    <div class="row"><input id="m_pu" value="${md.pic&&!md.pic.startsWith('data:')?esc(md.pic):''}" placeholder="Paste a picture link" style="flex:1"><span class="muted">or</span><label class="btn" style="margin:0">Upload<input type="file" id="m_pf" accept="image/*" hidden></label></div>
+    <div id="m_prev" style="margin-top:8px">${md.pic?`<img src="${esc(md.pic)}" style="max-width:100%;max-height:160px;border-radius:10px;border:2px solid #1F1B3A">`:''}</div>
+    <label>Note to self (optional)</label><input id="m_n" value="${esc(md.note)}" placeholder="Pause at 0:45 and ask the P question">
+    <div class="panel" style="margin-top:12px;background:var(--soft)"><b>Search ideas</b><ul class="small" style="margin:6px 0 0">${(L.slp.search||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+    <div class="actions">${DB.media[n]?'<button class="btn danger" id="m_clr">Remove media</button>':''}<div class="spacer"></div><button class="btn" data-close>Cancel</button><button class="btn primary" id="m_s">Save</button></div>`,
+  m=>{
+    let picData = md.pic && md.pic.startsWith('data:') ? md.pic : '';
+    $('#m_pf',m).onchange=e=>{const f=e.target.files[0]; if(!f) return; shrinkImage(f, 900, d=>{picData=d; $('#m_pu',m).value=''; $('#m_prev',m).innerHTML=`<img src="${d}" style="max-width:100%;max-height:160px;border-radius:10px;border:2px solid #1F1B3A">`;});};
+    $('#m_clr',m)&&($('#m_clr',m).onclick=()=>{delete DB.media[n]; save(); closeModal(); renderLibrary();});
+    $('#m_s',m).onclick=()=>{
+      const v=$('#m_v',m).value.trim(), pu=$('#m_pu',m).value.trim(), note=$('#m_n',m).value.trim();
+      const rec={video:v, pic: pu || picData, note};
+      if(!rec.video && !rec.pic && !rec.note) delete DB.media[n]; else DB.media[n]=rec;
+      if(save()){closeModal(); renderLibrary(); toast('Media saved.');}
+    };
+  });
+}
+function shrinkImage(file, max, cb){
+  const r=new FileReader(); r.onload=()=>{const img=new Image(); img.onload=()=>{const s=Math.min(1, max/Math.max(img.width,img.height)); const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.78));}; img.src=r.result;}; r.readAsDataURL(file);
+}
+
+/* ============================================================
+   DATA + SETTINGS
+   ============================================================ */
+function renderData(){
+  const app=$('#app');
+  const kb = Math.round((localStorage.getItem(KEY)||'').length/1024);
+  app.innerHTML = topBar()+`<div class="wrap">
+    <h2 style="font-size:28px">Data</h2>
+    <div class="lgrid" style="margin-top:14px">
+      <div class="panel"><h3>Export CSV</h3><p class="small muted">One row per session for every student. Opens in Excel or Google Sheets.</p><button class="btn primary" id="d_csv">Export all sessions (CSV)</button></div>
+      <div class="panel"><h3>Save data file</h3><p class="small muted">A backup of students, sessions, and media. Keep it on your laptop, a district drive, or a jump drive.</p><button class="btn primary" id="d_save">Save data file</button></div>
+      <div class="panel"><h3>Open data file</h3><p class="small muted">Loads a saved file. This <b>replaces</b> what is on this laptop now.</p><label class="btn" style="margin:0">Open data file<input type="file" id="d_open" accept=".json,application/json" hidden></label></div>
+    </div>
+    <p class="small muted" style="margin-top:16px">${DB.students.length} students · ${DB.sessions.length} sessions · about ${kb} KB used in this browser (most browsers allow about 5,000 KB).</p>
+  </div>`;
+  $('#d_csv').onclick=()=>exportCSV(DB.sessions,'all-students');
+  $('#d_save').onclick=()=>download(`SCOPE-data-${todayISO()}.json`, JSON.stringify(DB), 'application/json');
+  $('#d_open').onchange=e=>{const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{
+    let d; try{d=JSON.parse(r.result);}catch(err){toast('That file is not a SCOPE data file.'); return;}
+    if(!d||d.v!==1||!Array.isArray(d.students)){toast('That file is not a SCOPE data file.'); return;}
+    confirmBox('Replace data on this laptop?', `The file has ${d.students.length} students and ${(d.sessions||[]).length} sessions. Everything now on this laptop (${DB.students.length} students, ${DB.sessions.length} sessions) will be replaced. Save a data file first if you need it.`, 'Replace data', ()=>{const b=blank(); d.prefs=Object.assign(b.prefs,d.prefs||{}); d.media=d.media||{}; d.sessions=d.sessions||[]; DB=d; save(); toast('Data file loaded.'); renderHome();});
+  }; r.readAsText(f);};
+}
+function download(name, text, type){const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},500);}
+function csvCell(v){v=v==null?'':String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportCSV(list, tag){
+  const head=['Student','Grade','Date','Lesson #','Lesson','Unit','Session type','SCOPE focus','ND ELA standards','SEL goals','Items','Independent','Prompted','Incorrect','% Independent','% Correct (indep. + prompted)','Minutes','Short version','SLP','Notes'];
+  const rows=list.slice().sort((a,b)=>a.ts-b.ts).map(s=>{const st=DB.students.find(x=>x.id===s.studentId)||{name:'(deleted)',grade:''};
+    return [st.name, s.grade||st.grade, s.date, s.lesson, s.title, s.unit, s.type==='core'?'Core':'Practice '+s.p, s.focus, (s.codes||[]).join('; '), (s.sel||[]).join('; '), s.n, s.ind, s.prm, s.inc, s.pctInd, s.pctCorrect, s.minutes, s.short?'Yes':'No', DB.prefs.slpName||'', s.notes||''];});
+  download(`SCOPE-${tag}-${todayISO()}.csv`, '﻿'+[head].concat(rows).map(r=>r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+}
+function openSettings(){
+  const p=DB.prefs;
+  modal(`<h2>Settings</h2>
+    <label>SLP name (shows in the CSV)</label><input id="s_n" value="${esc(p.slpName||'')}">
+    <label>Read-aloud speed</label><input id="s_r" type="range" min="0.6" max="1.3" step="0.05" value="${p.voiceRate}"><button class="btn small" id="s_t" style="margin-top:6px">🔊 Test voice</button>
+    <label><input type="checkbox" id="s_sh" ${p.short?'checked':''} style="width:auto"> Start sessions in the short (10-minute) version</label>
+    <label>Practice sessions after each core lesson</label>
+    <div class="row">${[1,2,3].map(k=>`<div style="flex:1"><span class="small">${k}x / week</span><select id="s_p${k}">${[0,1,2,3,4].map(v=>`<option ${v==p.practice[k]?'selected':''}>${v}</option>`).join('')}</select></div>`).join('')}</div>
+    <div class="actions"><button class="btn" data-close>Cancel</button><button class="btn primary" id="s_s">Save</button></div>`,
+  m=>{ $('#s_t',m).onclick=()=>{DB.prefs.voiceRate=+$('#s_r',m).value; speak('Look at his face. What clues do you see?');};
+    $('#s_s',m).onclick=()=>{p.slpName=$('#s_n',m).value.trim(); p.voiceRate=+$('#s_r',m).value; p.short=$('#s_sh',m).checked; [1,2,3].forEach(k=>p.practice[k]=+$('#s_p'+k,m).value); save(); closeModal(); toast('Settings saved.');};});
+}
+
+/* ============================================================
+   SESSION PLAYER
+   ============================================================ */
+let S=null, timerInt=null;
+const PHASES=[{k:'warm',t:'Warm-up'},{k:'explore',t:'Explore'},{k:'talk',t:'Talk it through'},{k:'tryit',t:'Try it'},{k:'check',t:'Quick check'},{k:'done',t:'Done'}];
+
+function startSession(st, lessonId, type, p){
+  const L=LESSONS[lessonId]; if(!L){toast('That lesson is not built yet.'); return;}
+  const runNo = st? practiceRuns(st.id, lessonId) : 0;
+  const short = DB.prefs.short;
+  S={st, preview:!st, lessonId, type, p:p||1, runNo, short, L, phase:0, start:Date.now(), stepIdx:0, seen:{}, results:[], tryIdx:0, chkIdx:0};
+  buildContent();
+  renderSession();
+  clearInterval(timerInt); timerInt=setInterval(()=>{const t=$('#tmr'); if(t){const s=Math.floor((Date.now()-S.start)/1000); t.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}},1000);
+}
+function buildContent(){
+  const L=S.L, core=L.core, pr=L.practice;
+  const isCore=S.type==='core', n=S.runNo;
+  const nCheck = L.unitCheck && isCore ? (S.short?6:8) : (S.short?3:(isCore?SETTINGS.checkItemsCore:SETTINGS.checkItemsPractice));
+  S.explore = isCore ? core.explore : pr.scenes[n % pr.scenes.length];
+  S.warm = isCore ? core.warm : Object.assign({}, core.check[n % core.check.length]);
+  S.talk = core.talk;
+  const tryPool = isCore ? core.tryit.items : pr.tryit.items;
+  const tryN = S.short ? 3 : 5;
+  S.tryTitle = isCore ? core.tryit.title : pr.tryit.title;
+  S.tryItems = isCore ? tryPool.slice(0, S.short?3:tryPool.length) : rotate(tryPool, n*tryN, tryN);
+  S.checkItems = isCore ? core.check.slice(0,nCheck) : rotate(pr.check, n*nCheck, nCheck);
+  S.results = S.checkItems.map(it=>({q:it.q, line:it.line||'', first:null, tries:0, sug:null, mark:null}));
+  S.phases = PHASES.filter(ph=>!(S.short && ph.k==='warm'));
+  const ex=S.explore; S.stepList = ex.steps.filter(s=>!(S.short&&s.ext)).slice();
+  if (ex.compare){ const pi=S.stepList.findIndex(s=>s.k==='P'); S.stepList.splice(pi+1,0,{k:'P', compare:ex.compare}); }
+}
+function curPhase(){return S.phases[S.phase].k;}
+
+function renderSession(){
+  speechSynthesis && speechSynthesis.cancel && speechSynthesis.cancel();
+  const c=catalog(S.lessonId), L=S.L;
+  const app=$('#app');
+  const ph=curPhase();
+  app.innerHTML = `<div class="sess">
+    <div class="sbar">
+      <button class="btn ghost" id="exit" title="Leave session">✕</button>
+      <div><div class="title">${S.lessonId}. ${esc(c[2])}</div><div class="who">${S.preview?'Preview · nothing is saved':esc(S.st.name)} · ${S.type==='core'?'Core lesson':'Practice '+S.p}${S.short?' · short':''}</div></div>
+      <div class="phases">${S.phases.map((p,i)=>`<span class="${i===S.phase?'on':i<S.phase?'done':''}">${p.t}</span>`).join('')}</div>
+      <span class="timer" id="tmr">0:00</span>
+    </div>
+    <div class="sbody">
+      <aside class="rail" aria-label="SCOPE steps">${'SCOPE'.split('').map(k=>`<div class="lens ${railState(k)}" style="background:${SCOPE_STEPS[k].color}" title="${SCOPE_STEPS[k].word}">${k}</div>`).join('')}</aside>
+      <main class="stage" id="stage"></main>
+    </div>
+    <div class="slpbar" id="slpbar"></div>
+  </div>`;
+  $('#exit').onclick=()=>{ if(S.preview||curPhase()==='done'&&S.saved){endSession();return;} confirmBox('Leave this session?', 'This session has not been saved. Its data will be lost.', 'Leave without saving', endSession); };
+  const stage=$('#stage');
+  if(ph==='warm') phaseWarm(stage);
+  if(ph==='explore') phaseExplore(stage);
+  if(ph==='talk') phaseTalk(stage);
+  if(ph==='tryit') phaseTry(stage);
+  if(ph==='check') phaseCheck(stage);
+  if(ph==='done') phaseDone(stage);
+  requestAnimationFrame(fitBubbles);
+  const s=Math.floor((Date.now()-S.start)/1000); $('#tmr').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function railState(k){
+  const ph=curPhase();
+  if(ph==='explore'){const cur=S.stepList[S.stepIdx]; if(cur&&cur.k===k) return 'on'; if(S.stepList.some((s,i)=>s.k===k&&S.seen[i])) return 'done'; return '';}
+  if(ph==='done') return 'done';
+  return 'done';
+}
+function endSession(){clearInterval(timerInt); S=null; speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel(); renderHome();}
+function slpBar(inner, nextLabel, nextOk=true){
+  const ph=curPhase(); const tip = S.L.slp.tips;
+  $('#slpbar').innerHTML = `<span class="tag">SLP</span>
+    <button class="btn small" id="tipBtn">Tips</button>
+    ${inner||''}
+    <div class="spacer"></div>
+    ${S.phase>0?'<button class="btn" id="back">← Back</button>':''}
+    ${ph!=='done'?`<button class="btn go" id="next" ${nextOk?'':'disabled'}>${esc(nextLabel||'Next')} →</button>`:''}`;
+  $('#tipBtn').onclick=()=>modal(`<h2>SLP tips</h2><p>${esc(tip)}</p>${DB.media[S.lessonId]&&DB.media[S.lessonId].note?`<p><b>Your media note:</b> ${esc(DB.media[S.lessonId].note)}</p>`:''}<p class="small muted"><b>Goal:</b> ${esc(S.L.goal)}<br><b>ND ELA:</b> ${codesFor(S.lessonId, S.st?S.st.grade:6).join(', ')}</p><div class="actions"><button class="btn primary" data-close>Close</button></div>`);
+  $('#back')&&($('#back').onclick=()=>{S.phase--; renderSession();});
+  $('#next')&&($('#next').onclick=()=>{S.phase++; renderSession();});
+}
+const nextPhaseName=()=>S.phases[S.phase+1]?S.phases[S.phase+1].t:'';
+
+/* ---------- scene builder (scene + bubbles + spots) ---------- */
+function sceneHTML(sc, opts={}){
+  if(sc.face) return `<div class="facewrap">${sceneSVG(sc)}</div>`;
+  const bubs = bubbleAnchors(sc).map((b,i)=>`<div class="bub ${b.kind||''}" style="left:${b.px}%;top:${b.py}%" data-ax="${b.px}" data-ay="${b.py}" data-say="${esc(b.text)}">${esc(b.text)}</div>`).join('');
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const spots = (opts.spots!==false?(sc.spots||[]):[]).map((s,i)=>`<button class="spot" data-spot="${i}" style="left:${cl((s.x+(s.ox==null?40:s.ox))/8,4,96)}%;top:${cl((s.y+(s.oy==null?-42:s.oy))/4.5,6,94)}%" aria-label="Clue ${i+1}">${i+1}</button>`).join('');
+  return `<div class="scene" data-scene>${sceneSVG(sc)}${bubs}${spots}</div>`;
+}
+function wireSpots(root, sc, onFind){
+  $$('.spot',root).forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.spot, s=sc.spots[i];
+    $$('.spotlabel',root).forEach(l=>l.remove());
+    b.classList.add('found');
+    const lab=document.createElement('div'); lab.className='spotlabel'; lab.style.left=(s.x/8)+'%'; lab.style.top=(s.y/4.5)+'%'; lab.style.background=SCOPE_STEPS[s.k||'C'].color; lab.textContent=s.label;
+    b.parentElement.appendChild(lab); speak(s.label);
+    onFind&&onFind(i);
+  });
+}
+
+/* keep speech bubbles inside the scene and apart from each other */
+function fitBubbles(){
+  $$('[data-scene]').forEach(sc=>{
+    const W=sc.clientWidth, H=sc.clientHeight; if(!W) return;
+    const bs=$$('.bub',sc); const M=6;
+    const boxes=bs.map(b=>{b.style.transform='none'; const w=b.offsetWidth, h=b.offsetHeight;
+      const ax=parseFloat(b.dataset.ax)/100*W, ay=parseFloat(b.dataset.ay)/100*H;
+      const o={b, w, h, x:ax-w/2, y:ay-h, ax, side:false};
+      if(o.y<M){ o.side=true; o.y=Math.max(M, ay+8); o.x = ax+34; if(o.x+w>W-M) o.x=ax-34-w; }
+      return o;});
+    const clampX=o=>{o.x=Math.max(M,Math.min(W-M-o.w,o.x));};
+    boxes.forEach(o=>{clampX(o); if(o.y<M) o.y=M; if(o.y+o.h>H-M) o.y=H-M-o.h;});
+    boxes.sort((a,b)=>a.x-b.x);
+    for(let pass=0;pass<3;pass++) for(let i=1;i<boxes.length;i++){const a=boxes[i-1], c=boxes[i];
+      const ox=a.x+a.w+M-c.x, oy=Math.min(a.y+a.h,c.y+c.h)-Math.max(a.y,c.y);
+      if(ox>0&&oy>0){a.x-=ox/2; c.x+=ox/2; clampX(a); clampX(c); const still=a.x+a.w+M-c.x; if(still>0){ if(c.y<=a.y) c.y=Math.max(M,a.y-c.h-M); else c.y=a.y+a.h+M; }}}
+    boxes.forEach(o=>{o.b.style.left=o.x+'px'; o.b.style.top=o.y+'px'; const tail=Math.max(14,Math.min(o.w-14,o.ax-o.x)); o.b.style.setProperty('--tail',tail+'px'); o.b.classList.toggle('side',o.side);});
+  });
+}
+window.addEventListener('resize',()=>{ if(S) renderSession(); });
+
+/* ---------- WARM-UP ---------- */
+function phaseWarm(stage){
+  const w=S.warm;
+  stage.innerHTML = `<div class="goalbox" style="max-width:980px;margin:0 auto 18px"><span style="font-size:32px">🎯</span><div class="say sm" style="flex:1">${esc(S.L.goal)}</div>${spk(S.L.goal)}</div><div id="witem"></div>`;
+  renderItem($('#witem'), w, ()=>{});
+  slpBar(`<span class="tip">${S.type==='core'?'Quick warm-up. No data is recorded here.':'Practice warm-up: a review question from the core lesson.'}</span>`, nextPhaseName());
+}
+
+/* ---------- EXPLORE ---------- */
+function phaseExplore(stage){
+  const ex=S.explore, md=DB.media[S.lessonId];
+  const tabs=[['scene','Scene']]; if(md&&md.video) tabs.push(['video','Video']); if(md&&md.pic) tabs.push(['pic','Picture']);
+  S.mtab=S.mtab||'scene';
+  const step=S.stepList[S.stepIdx]; S.seen[S.stepIdx]=true;
+  let media='';
+  if(S.mtab==='scene') media=sceneHTML(ex.scene);
+  if(S.mtab==='video'){const id=ytId(md.video); media = id?`<div class="mediabox"><iframe src="https://www.youtube-nocookie.com/embed/${id}?rel=0" allow="encrypted-media; picture-in-picture" allowfullscreen title="Video"></iframe></div>`:`<div class="panel"><p>This video opens in a new tab.</p><a class="btn primary" href="${esc(md.video)}" target="_blank" rel="noopener">Open video</a></div>`;}
+  if(S.mtab==='pic') media=`<div class="mediabox"><img src="${esc(md.pic)}" alt="SLP picture"></div>`;
+  stage.innerHTML = `<div class="explore">
+    <div>
+      ${tabs.length>1?`<div class="mediatabs">${tabs.map(t=>`<button data-tab="${t[0]}" class="${S.mtab===t[0]?'on':''}">${t[1]}</button>`).join('')}</div>`:''}
+      ${media}
+      ${S.mtab==='scene'&&ex.scene.spots&&ex.scene.spots.length?`<p class="small muted kid" style="margin:10px 2px 0">Tap the yellow circles to find clues. Tap a speech bubble to hear it.</p>`:''}
+      ${ex.tone?toneCards(ex.tone):''}
+    </div>
+    <div class="steps">
+      <div class="ministeps">${S.stepList.map((s,i)=>`<button data-si="${i}" class="${i===S.stepIdx?'on':S.seen[i]?'seen':''}" style="background:${SCOPE_STEPS[s.k].color}" aria-label="${SCOPE_STEPS[s.k].word}${s.compare?' bonus':''}">${s.compare?'+':s.k}</button>`).join('')}</div>
+      <div id="stepcard"></div>
+    </div>
+  </div>`;
+  $$('[data-tab]').forEach(b=>b.onclick=()=>{S.mtab=b.dataset.tab; renderSession();});
+  $$('[data-si]').forEach(b=>b.onclick=()=>{S.stepIdx=+b.dataset.si; renderSession();});
+  wireSpots(stage, ex.scene);
+  $$('[data-tone]').forEach(b=>b.onclick=()=>{b.querySelector('.means').classList.remove('hidden'); b.querySelector('.tapto')&&b.querySelector('.tapto').remove();});
+  const card=$('#stepcard'); const st=SCOPE_STEPS[step.k];
+  if(step.compare){
+    card.innerHTML=`<div class="step"><div class="hd"><div class="badge" style="background:${st.color}">+</div><div class="word">Same words, new place</div></div><div id="cmp"></div></div>`;
+    renderItem($('#cmp'), Object.assign({compact:true},step.compare), ()=>{});
+  } else {
+    const ansHTML = Array.isArray(step.a) ? `<ul>${step.a.map((a,i)=>`<li class="${step.best===i?'best':''}">💭 ${esc(a)} ${spk(a)}${step.best===i?'<span class="bt">best fit</span>':''}</li>`).join('')}</ul>` : `<div class="say sm">${esc(step.a)} ${spk(step.a)}</div>`;
+    card.innerHTML=`<div class="step"><div class="hd"><div class="badge" style="background:${st.color}">${step.k}</div><div><div class="word">${st.word}</div></div></div>
+      <div class="qrow"><div class="say">${esc(step.q)}</div>${spk(step.q)}</div>
+      <div class="stepnav"><button class="btn" id="showA">💡 Show ${Array.isArray(step.a)?'ideas':'an idea'}</button></div>
+      <div class="ans hidden" id="ans">${ansHTML}</div></div>`;
+    $('#showA').onclick=()=>{$('#ans').classList.remove('hidden'); $('#showA').remove();};
+  }
+  const last = S.stepIdx===S.stepList.length-1;
+  slpBar(`<span class="tip">Let the student answer first. Then tap <b>Show</b>.</span>${S.stepIdx>0?'<button class="btn" id="prevStep">← Step</button>':''}${!last?`<button class="btn" id="nextStep">Next step: ${S.stepList[S.stepIdx+1].compare?'Bonus':SCOPE_STEPS[S.stepList[S.stepIdx+1].k].word} →</button>`:''}`, nextPhaseName());
+  $('#prevStep')&&($('#prevStep').onclick=()=>{S.stepIdx--; renderSession();});
+  $('#nextStep')&&($('#nextStep').onclick=()=>{S.stepIdx++; renderSession();});
+}
+function toneCards(t){
+  return `<div class="bigline" style="margin-top:16px;font-size:40px;padding:10px">“${esc(t.line)}”</div>
+  <p class="small muted" style="margin:8px 2px">SLP: say the line each way. Student guesses the meaning, then tap the card.</p>
+  <div class="tones">${t.ways.map(w=>`<button class="tone" data-tone><div class="em">${w.icon}</div><div class="t">${esc(w.tone)}</div><div class="how">Say it: ${esc(w.how)}</div><div class="tapto small muted" style="margin-top:6px">Tap to see the meaning</div><div class="means hidden">${esc(w.means)}</div></button>`).join('')}</div>`;
+}
+
+/* ---------- TALK ---------- */
+function phaseTalk(stage){
+  const t=S.talk; const prompts=S.short?t.prompts.slice(0,1):t.prompts;
+  stage.innerHTML=`<div class="talk">
+    ${prompts.map((p,i)=>`<div class="prompt"><span style="font-size:30px">${i?'🗨️':'💬'}</span><div class="q say">${esc(p)}</div>${spk(p)}</div>`).join('')}
+    <div><div class="say sm" style="margin-bottom:10px">Sentence starters</div><div class="starters">${t.starters.map(s=>`<button class="starter" data-say="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>
+  </div>`;
+  slpBar('<span class="tip">Talk it through. Tap a starter to hear it. Encourage more than one idea.</span>', nextPhaseName());
+}
+
+/* ---------- TRY IT ---------- */
+function phaseTry(stage){
+  const items=S.tryItems; const i=Math.min(S.tryIdx, items.length-1);
+  stage.innerHTML=`<div class="row" style="justify-content:center;margin-bottom:12px"><h2 style="font-size:26px">${esc(S.tryTitle)}</h2></div><div class="prog" style="margin-bottom:14px">${items.map((_,k)=>`<i class="${k<i?'done':k===i?'on':''}"></i>`).join('')}</div><div id="titem"></div>`;
+  let answered=false;
+  renderItem($('#titem'), items[i], ()=>{answered=true; const nb=$('#nextItem'); if(nb) nb.disabled=false;});
+  const last=i===items.length-1;
+  slpBar(`<span class="tip">Practice round. No data is recorded here.</span>${!last?`<button class="btn" id="nextItem">Next item →</button>`:''}${i>0?'<button class="btn" id="prevItem">← Item</button>':''}`, nextPhaseName());
+  $('#nextItem')&&($('#nextItem').onclick=()=>{S.tryIdx++; renderSession();});
+  $('#prevItem')&&($('#prevItem').onclick=()=>{S.tryIdx--; renderSession();});
+}
+
+/* ---------- CHECK ---------- */
+function phaseCheck(stage){
+  const items=S.checkItems; const i=Math.min(S.chkIdx, items.length-1); const r=S.results[i];
+  stage.innerHTML=`<div class="row" style="justify-content:center;margin-bottom:12px"><h2 style="font-size:26px">Quick check</h2></div><div class="prog" style="margin-bottom:14px">${items.map((_,k)=>`<i class="${k<i?'done':k===i?'on':''}"></i>`).join('')}</div><div id="citem"></div>`;
+  const draw=()=>{
+    const m=r.mark||r.sug;
+    slpBar(`<span class="tip">Mark ${i+1} of ${items.length}:</span><div class="marks">${[['I','Independent'],['P','Prompted'],['X','Incorrect']].map(([k,t])=>`<button data-m="${k}" class="${m===k?'on':''} ${!r.mark&&r.sug===k?'sug':''}" title="${t}">${t}</button>`).join('')}</div>${!r.mark&&r.sug?'<span class="small" style="opacity:.8">Suggested from the student’s taps. Tap to change.</span>':''}
+      ${i>0?'<button class="btn" id="prevC">← Item</button>':''}${i<items.length-1?`<button class="btn" id="nextC" ${m?'':'disabled'}>Next item →</button>`:''}`,
+      nextPhaseName(), i===items.length-1 && !!(m));
+    $$('.marks button').forEach(b=>b.onclick=()=>{r.mark=b.dataset.m; draw();});
+    $('#nextC')&&($('#nextC').onclick=()=>{S.chkIdx++; renderSession();});
+    $('#prevC')&&($('#prevC').onclick=()=>{S.chkIdx--; renderSession();});
+    if(i===items.length-1){ const nb=$('#next'); if(nb){ nb.onclick=()=>{ S.results.forEach(x=>{ if(!x.mark) x.mark=x.sug||'X'; }); S.phase++; renderSession(); }; } }
+  };
+  renderItem($('#citem'), items[i], res=>{ if(r.first===null){r.first=res.first; r.tries=res.tries; r.sug = res.first?'I':(res.correct?'P':'X');} draw(); }, r.first!==null);
+  draw();
+}
+
+/* ---------- DONE ---------- */
+function phaseDone(stage){
+  const R=S.results; R.forEach(x=>{if(!x.mark) x.mark=x.sug||'X';});
+  const n=R.length, I=R.filter(x=>x.mark==='I').length, P=R.filter(x=>x.mark==='P').length, X=n-I-P;
+  const mins=Math.max(1,Math.round((Date.now()-S.start)/60000));
+  const pInd=pct(I,n), pCor=pct(I+P,n);
+  let nx=null, alt='';
+  if(!S.preview){ nx=computeNext(S.st,S.lessonId,S.type,S.p); }
+  const ready = pInd>=SETTINGS.masteryPercent;
+  stage.innerHTML=`<div class="done">
+    <div class="stamp">You did it!</div>
+    <div class="goalbox"><span style="font-size:32px">⭐</span><div class="say sm">${esc(S.L.goal)}</div>${spk(S.L.goal)}</div>
+    <div class="slpdone">
+      <h3>Session summary ${S.preview?'(preview — not saved)':''}</h3>
+      <div class="row"><div class="stat"><b>${pInd}%</b><span class="small">independent</span></div><div class="stat"><b>${pCor}%</b><span class="small">correct with prompts</span></div><div class="stat"><b>${I} / ${P} / ${X}</b><span class="small">I / P / X</span></div></div>
+      <table style="margin-top:12px"><thead><tr><th>#</th><th>Item</th><th>Mark</th></tr></thead><tbody>${R.map((x,k)=>`<tr><td>${k+1}</td><td>${esc(x.q)}${x.line?` <i>“${esc(x.line)}”</i>`:''}</td><td class="minimarks">${['I','P','X'].map(m=>`<button data-k="${k}" data-m="${m}" class="${x.mark===m?'on':''}">${m}</button>`).join(' ')}</td></tr>`).join('')}</tbody></table>
+      ${S.preview?'':`<div class="row" style="margin-top:12px;align-items:flex-end"><div style="width:110px"><label>Minutes</label><input id="dn_min" type="number" min="1" max="60" value="${mins}"></div><div style="flex:1"><label>Notes</label><input id="dn_notes" placeholder="Prompts used, what clicked, what to try next"></div></div>
+      <label>Next session</label>
+      <select id="dn_next">
+        <option value="auto">${esc(nextLabel(nx))} (on schedule)</option>
+        <option value="repeat">Repeat: ${esc(nextLabel({lesson:S.lessonId,type:'practice',p:S.type==='core'?1:S.p+1}))}</option>
+        ${isBuilt(S.lessonId+1)?`<option value="move">Move on: ${esc(nextLabel({lesson:S.lessonId+1,type:'core',p:0}))}</option>`:''}
+        <option value="redo">Redo the core lesson: Lesson ${S.lessonId}</option>
+      </select>
+      ${ready && S.type==='core' && isBuilt(S.lessonId+1)?`<p class="small" style="color:var(--ok);font-weight:700">${pInd}% independent — at or above ${SETTINGS.masteryPercent}%. Moving on early is an option.</p>`:''}
+      ${nx&&nx.waiting?`<p class="small muted">Lesson ${nx.waiting} isn’t built yet, so the next session is extra practice with new items.</p>`:''}`}
+    </div>
+  </div>`;
+  $$('.minimarks button').forEach(b=>b.onclick=()=>{S.results[+b.dataset.k].mark=b.dataset.m; phaseDone(stage);});
+  if(S.preview){ slpBar('<span class="tip">Preview finished. Nothing was saved.</span><button class="btn go" id="fin">Close preview</button>'); $('#fin').onclick=()=>{endSession(); renderLibrary();}; return; }
+  slpBar(`<span class="tip">Check the marks, add a note, and save.</span><button class="btn go" id="saveSess">✔ Save session</button>`);
+  $('#saveSess').onclick=()=>{
+    const R2=S.results, n2=R2.length, I2=R2.filter(x=>x.mark==='I').length, P2=R2.filter(x=>x.mark==='P').length;
+    const c=catalog(S.lessonId), st=S.st;
+    const rec={id:uid(), studentId:st.id, ts:Date.now(), date:todayISO(), lesson:S.lessonId, title:c[2], unit:c[1], type:S.type, p:S.type==='core'?0:S.p,
+      focus:Array.from(new Set(S.stepList.map(s=>s.k))).join(''), codes:codesFor(S.lessonId, st.grade), sel:S.L.sel||[], grade:st.grade,
+      n:n2, ind:I2, prm:P2, inc:n2-I2-P2, pctInd:pct(I2,n2), pctCorrect:pct(I2+P2,n2), minutes:+$('#dn_min').value||mins, short:S.short,
+      notes:$('#dn_notes').value.trim(), items:R2.map(x=>({q:x.q, mark:x.mark}))};
+    const choice=$('#dn_next').value;
+    if(choice==='auto') st.next=nx;
+    else if(choice==='repeat') st.next={lesson:S.lessonId,type:'practice',p:S.type==='core'?1:S.p+1};
+    else if(choice==='move') st.next={lesson:S.lessonId+1,type:'core',p:0};
+    else st.next={lesson:S.lessonId,type:'core',p:0};
+    DB.sessions.push(rec);
+    if(save()){ S.saved=true; toast('Session saved for '+st.name.replace(/\.$/,'')+'.'); clearInterval(timerInt); const id=st.id; S=null; renderStudent(id); }
+  };
+}
+
+/* ============================================================
+   ITEM RENDERER (quiz / pick / detective / sort / open)
+   onDone({correct, first, tries})
+   ============================================================ */
+function renderItem(root, it, onDone, locked){
+  const type=it.type||'quiz';
+  const pic = it.scene ? sceneHTML(it.scene, {spots:type==='detective'}) : it.face ? sceneHTML({face:it.face}) : '';
+  const lineHTML = it.line ? `<div class="bigline">“${esc(it.line)}”${it.slp?`<button class="peek" data-peek>Hold: SLP peek</button>`:''}</div>${it.slp?'<p class="small muted" style="text-align:center;margin:0">SLP reads it aloud. Hold the peek button to see how. (The speaker button reads it flat.)</p>':''}` : '';
+  const qHTML = `<div class="qrow"><div class="say">${esc(it.q)}</div>${spk(it.q)}</div>`;
+  if(type==='open'){
+    root.innerHTML = `<div class="item ${pic?'withpic':''}">${qHTML}${pic}</div>`; if(it.scene) wireSpots(root,it.scene); return;
+  }
+  if(type==='sort') return renderSort(root,it,onDone);
+  if(type==='pick') return renderPick(root,it,onDone);
+  const choices = `<div class="choices ${it.choices.length>=4&&!pic?'many':''}">${it.choices.map((c,i)=>`<button class="choice" data-c="${i}">${esc(c)}</button>`).join('')}</div><div id="fb"></div>`;
+  const body = type==='detective'
+    ? `<div class="item withpic">${qHTML}<div class="itemgrid"><div>${pic}<p class="kid small muted" style="margin:8px 2px">Tap the yellow circles.</p></div><div><div class="counter" id="cnt">Clues found: 0 / ${it.scene.spots.length}</div><div id="chwrap" class="hidden" style="margin-top:12px">${choices}</div></div></div></div>`
+    : pic && !it.compact ? `<div class="item withpic">${qHTML}<div class="itemgrid"><div>${pic}</div><div>${lineHTML}${choices}</div></div></div>`
+    : `<div class="item">${pic}${qHTML}${lineHTML}${choices}</div>`;
+  root.innerHTML = body;
+  if(type==='detective'){
+    const found=new Set(); wireSpots(root, it.scene, i=>{found.add(i); $('#cnt',root).textContent=`Clues found: ${found.size} / ${it.scene.spots.length}`; if(found.size===it.scene.spots.length) $('#chwrap',root).classList.remove('hidden');});
+  }
+  const pk=$('[data-peek]',root);
+  if(pk){ const show=e=>{e.preventDefault(); if($('.peekout',pk.parentElement)) return; const d=document.createElement('div'); d.className='peekout'; d.innerHTML=`Say it: ${esc(it.slp.read)}<br><span style="font-size:15px;font-weight:600">${esc(it.slp.how)}</span>`; pk.parentElement.appendChild(d);};
+    const hide=()=>{$$('.peekout',root).forEach(x=>x.remove());};
+    pk.addEventListener('pointerdown',show); pk.addEventListener('pointerup',hide); pk.addEventListener('pointerleave',hide); pk.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')show(e);}); pk.addEventListener('keyup',hide); }
+  let tries=0, done=false;
+  const finish=(correct)=>{done=true; $$('.choice',root).forEach((b,i)=>{b.disabled=true; if(it.ans.includes(i)) b.classList.add('right'); else b.classList.add('dim');});
+    const fb=$('#fb',root); fb.innerHTML=`<div class="fb ${correct?'ok':'no'}">${correct?'✅ ':'👉 '}${esc(it.why||'')} ${spk(it.why||'')}</div>`;
+    onDone({correct, first:correct&&tries===1, tries}); };
+  if(locked){ finish(true); return; }
+  $$('.choice',root).forEach(b=>b.onclick=()=>{ if(done) return; tries++; const i=+b.dataset.c;
+    if(it.ans.includes(i)) finish(true);
+    else { b.classList.add('wrong'); b.disabled=true; if(tries>=2) finish(false); else $('#fb',root).innerHTML=`<div class="fb no">Look again. ${it.hint?esc(it.hint):'Check the clues.'}</div>`; } });
+}
+
+function renderPick(root,it,onDone){
+  const sc=it.scene, boxes=charBoxes(sc);
+  root.innerHTML=`<div class="item withpic"><div class="qrow"><div class="say">${esc(it.q)}</div>${spk(it.q)}</div>
+    <div style="position:relative;max-width:700px;width:100%;margin:0 auto">${sceneHTML(sc,{spots:false})}</div>
+    <div class="row" style="justify-content:center"><button class="btn big go" id="pkCheck">Check</button></div><div id="fb"></div></div>`;
+  const scEl=$('[data-scene]',root);
+  boxes.forEach(b=>{const d=document.createElement('button'); d.className='pickbox'; d.dataset.id=b.id; d.style.cssText=`left:${b.left}%;top:${b.top}%;width:${b.w}%;height:${b.h}%`; d.setAttribute('aria-label',b.name); d.innerHTML=`<span class="nm">${esc(b.name)}</span>`; d.onclick=()=>{ if(doneP) return; d.classList.toggle('sel'); }; scEl.appendChild(d);});
+  let tries=0, doneP=false;
+  $('#pkCheck',root).onclick=()=>{ if(doneP) return; tries++;
+    const sel=$$('.pickbox.sel',root).map(b=>b.dataset.id).sort().join(','), ok=it.ok.slice().sort().join(',');
+    const correct = sel===ok;
+    if(correct || tries>=2){ doneP=true; $$('.pickbox',root).forEach(b=>{b.classList.remove('sel'); b.classList.add(it.ok.includes(b.dataset.id)?'right':'wrong');}); $('#pkCheck',root).remove();
+      $('#fb',root).innerHTML=`<div class="fb ${correct?'ok':'no'}">${correct?'✅ ':'👉 '}${esc(it.why)} ${spk(it.why)}</div>`; onDone({correct, first:correct&&tries===1, tries}); }
+    else $('#fb',root).innerHTML=`<div class="fb no">Not quite. Look at which way each person is facing. Try again.</div>`;
+  };
+}
+
+function renderSort(root,it,onDone){
+  const place={}; let sel=null, tries=0, doneS=false;
+  const draw=()=>{
+    const unplaced=it.items.map((x,i)=>i).filter(i=>place[i]==null);
+    root.innerHTML=`<div class="item sortwrap"><div class="qrow"><div class="say sm">${esc(it.q)}</div>${spk(it.q)}</div>
+      <div class="sortcards">${unplaced.map(i=>`<button class="scard2 ${sel===i?'sel':''}" data-i="${i}">${esc(it.items[i].t)}</button>`).join('')||'<span class="muted kid">All cards are in a box.</span>'}</div>
+      <div class="bins">${it.bins.map((b,bi)=>`<div class="bin ${sel!=null?'ready':''}" data-b="${bi}" role="button" tabindex="0"><h4>${esc(b)}</h4>${it.items.map((x,i)=>place[i]===bi?`<button class="scard2 ${doneS?(x.bin===bi?'right':'wrong'):''}" data-back="${i}">${esc(x.t)}</button>`:'').join('')}</div>`).join('')}</div>
+      ${!unplaced.length&&!doneS?'<div class="row" style="justify-content:center"><button class="btn big go" id="sCheck">Check</button></div>':''}<div id="fb"></div></div>`;
+    $$('[data-i]',root).forEach(b=>b.onclick=()=>{sel=+b.dataset.i; speak(it.items[sel].t); draw();});
+    $$('[data-b]',root).forEach(b=>b.onclick=e=>{ if(e.target.closest('[data-back]')) return; if(sel==null||doneS) return; place[sel]=+b.dataset.b; sel=null; draw();});
+    $$('[data-back]',root).forEach(b=>b.onclick=()=>{ if(doneS) return; delete place[+b.dataset.back]; draw();});
+    $('#sCheck',root)&&($('#sCheck',root).onclick=()=>{ tries++;
+      const wrong=it.items.map((x,i)=>i).filter(i=>place[i]!==it.items[i].bin);
+      if(!wrong.length || tries>=2){ if(wrong.length) wrong.forEach(i=>place[i]=place[i]); doneS=true; draw(); $('#fb',root).innerHTML=`<div class="fb ${wrong.length?'no':'ok'}">${wrong.length?'👉 The red cards belong in the other box. ':'✅ '}${esc(it.why)}</div>`; onDone({correct:!wrong.length, first:!wrong.length&&tries===1, tries}); }
+      else { wrong.forEach(i=>delete place[i]); draw(); $('#fb',root).innerHTML=`<div class="fb no">${wrong.length} card${wrong.length>1?'s':''} came back. Try those again.</div>`; }
+    });
+  };
+  draw();
+}
+
+/* ---------- boot ---------- */
+document.title = SETTINGS.appTitle;
+renderHome();
+
+</script>
+</body>
+</html>
